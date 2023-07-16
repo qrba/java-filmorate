@@ -11,7 +11,8 @@ hs_err_pid*
 out/
 HELP.md
 target/
-.mvn/wrapper/maven-wrapper.jar
+.mvn/
+/mvn*
 !**/src/main/**/target/
 !**/src/test/**/target/
 

@@ -24,6 +24,7 @@ public class FilmController {
     private final Map<Integer, Film> films = new HashMap<>();
     private final FilmValidator validator = new FilmValidator();
     private int idCounter = 0;
+
     @GetMapping
     public Collection<Film> getFilms() {
         return films.values();
