@@ -32,6 +32,7 @@ public class UserController {
 
     @PostMapping
     public User addUser(@Valid @RequestBody User user) {
+        validator.validate(user);
         setName(user);
         idCounter++;
         user.setId(idCounter);
@@ -42,6 +43,7 @@ public class UserController {
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
+        validator.validate(user);
         int id = user.getId();
         if (users.get(id) != null) {
             setName(user);
@@ -49,7 +51,7 @@ public class UserController {
             log.info("Обновлен пользователь {}.", user);
         } else {
             String message = "Пользователь с id=" + id + " не найден.";
-            log.warn(message);
+            log.error(message);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, message);
         }
         return user;

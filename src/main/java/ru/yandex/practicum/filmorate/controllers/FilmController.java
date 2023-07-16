@@ -32,6 +32,7 @@ public class FilmController {
 
     @PostMapping
     public Film addFilm(@Valid @RequestBody Film film) {
+        validator.validate(film);
         idCounter++;
         film.setId(idCounter);
         films.put(idCounter, film);
@@ -41,13 +42,14 @@ public class FilmController {
 
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
+        validator.validate(film);
         int id = film.getId();
         if (films.get(id) != null) {
             films.put(id, film);
             log.info("Обновлен фильм {}.", film);
         } else {
             String message = "Фильм с id=" + id + " не найден.";
-            log.warn(message);
+            log.error(message);
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, message);
         }
         return film;
