@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class UserControllerTest {
-    @Value(value="${local.server.port}")
+    @Value(value = "${local.server.port}")
     private int port;
 
     @Autowired
