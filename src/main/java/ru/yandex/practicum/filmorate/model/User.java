@@ -19,6 +19,7 @@ public class User {
     @Pattern(regexp = "^\\S+$")
     private final String login;
     private String name;
+    @NotNull
     @Past
     private final LocalDate birthday;
 }

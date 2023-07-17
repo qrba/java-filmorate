@@ -9,6 +9,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
@@ -16,6 +17,7 @@ import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class FilmControllerTest {
     @Value(value = "${local.server.port}")
@@ -23,53 +25,65 @@ public class FilmControllerTest {
 
     @Autowired
     private TestRestTemplate restTemplate;
+    private final String resource = "/films";
 
     @Test
-    void addFilm() {
+    void shouldAddFilm() {
         Film film = new Film("Film", "Film is a test entity",
                 LocalDate.parse("1985-10-20"), 90);
-        ResponseEntity<Film> response = restTemplate.postForEntity("/films", film, Film.class);
+        ResponseEntity<Film> response = restTemplate.postForEntity(resource, film, Film.class);
         Film addedFilm = response.getBody();
 
-        assertEquals(response.getStatusCode(), HttpStatus.OK);
         assertNotNull(addedFilm);
-        assertEquals(addedFilm.getId(), 1);
-        assertEquals(addedFilm.getName(), film.getName());
-        assertEquals(addedFilm.getDescription(), film.getDescription());
-        assertEquals(addedFilm.getReleaseDate(), film.getReleaseDate());
-        assertEquals(addedFilm.getDuration(), film.getDuration());
 
-        film = new Film("", "Film is a test entity",
+        film.setId(addedFilm.getId());
+
+        assertEquals(response.getStatusCode(), HttpStatus.OK);
+        assertEquals(film, addedFilm);
+    }
+
+    @Test
+    void shouldNotAddFilmWhenIncorrectName() {
+        Film film = new Film("", "Film is a test entity",
                 LocalDate.parse("1985-10-20"), 90);
-        response = restTemplate.postForEntity("/films", film, Film.class);
-
-        assertEquals(response.getStatusCode(), HttpStatus.BAD_REQUEST);
-
-        film = new Film("Film", "Very very very very very very very very very very very very very " +
-                "very very very very very very very very very very very very very very very very very very very very " +
-                "very very very very very very very long description", LocalDate.parse("1985-10-20"), 90);
-        response = restTemplate.postForEntity("/films", film, Film.class);
-
-        assertEquals(response.getStatusCode(), HttpStatus.BAD_REQUEST);
-
-        film = new Film("Film", "Film is a test entity",
-                LocalDate.parse("1885-10-20"), 90);
-        response = restTemplate.postForEntity("/films", film, Film.class);
-
-        assertEquals(response.getStatusCode(), HttpStatus.BAD_REQUEST);
-
-        film = new Film("Film", "Film is a test entity",
-                LocalDate.parse("1985-10-20"), -90);
-        response = restTemplate.postForEntity("/films", film, Film.class);
+        ResponseEntity<Film> response = restTemplate.postForEntity(resource, film, Film.class);
 
         assertEquals(response.getStatusCode(), HttpStatus.BAD_REQUEST);
     }
 
     @Test
-    void updateFilm() {
+    void shouldNotAddFilmWhenIncorrectDescription() {
+        Film film = new Film("Film", "Very very very very very very very very very very very very very " +
+                "very very very very very very very very very very very very very very very very very very very very " +
+                "very very very very very very very long description", LocalDate.parse("1985-10-20"), 90);
+        ResponseEntity<Film> response = restTemplate.postForEntity(resource, film, Film.class);
+
+        assertEquals(response.getStatusCode(), HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void shouldNotAddFilmWhenIncorrectReleaseDate() {
+        Film film = new Film("Film", "Film is a test entity",
+                LocalDate.parse("1885-10-20"), 90);
+        ResponseEntity<Film> response = restTemplate.postForEntity(resource, film, Film.class);
+
+        assertEquals(response.getStatusCode(), HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void shouldNotAddFilmWhenIncorrectDuration() {
+        Film film = new Film("Film", "Film is a test entity",
+                LocalDate.parse("1985-10-20"), -90);
+        ResponseEntity<Film> response = restTemplate.postForEntity(resource, film, Film.class);
+
+        assertEquals(response.getStatusCode(), HttpStatus.BAD_REQUEST);
+    }
+
+    @Test
+    void shouldUpdateFilm() {
         Film film = new Film("Film", "Film is a test entity",
                 LocalDate.parse("1985-10-20"), 90);
-        ResponseEntity<Film> response = restTemplate.postForEntity("/films", film, Film.class);
+        ResponseEntity<Film> response = restTemplate.postForEntity(resource, film, Film.class);
         Film addedFilm = response.getBody();
         Film newFilm = new Film("Film Updated", "Film Updated is a test entity",
                 LocalDate.parse("1995-10-20"), 190);
@@ -78,7 +92,7 @@ public class FilmControllerTest {
 
         newFilm.setId(addedFilm.getId());
         response = restTemplate.exchange(
-                "/films",
+                resource,
                 HttpMethod.PUT,
                 new HttpEntity<>(newFilm),
                 Film.class
@@ -87,15 +101,16 @@ public class FilmControllerTest {
 
         assertEquals(response.getStatusCode(), HttpStatus.OK);
         assertNotNull(updatedFilm);
-        assertEquals(updatedFilm.getId(), addedFilm.getId());
-        assertEquals(updatedFilm.getName(), newFilm.getName());
-        assertEquals(updatedFilm.getDescription(), newFilm.getDescription());
-        assertEquals(updatedFilm.getReleaseDate(), newFilm.getReleaseDate());
-        assertEquals(updatedFilm.getDuration(), newFilm.getDuration());
+        assertEquals(newFilm, updatedFilm);
+    }
 
+    @Test
+    void shouldNotUpdateFilmWhenIncorrectId() {
+        Film newFilm = new Film("Film Updated", "Film Updated is a test entity",
+                LocalDate.parse("1995-10-20"), 190);
         newFilm.setId(999);
-        response = restTemplate.exchange(
-                "/films",
+        ResponseEntity<Film> response = restTemplate.exchange(
+                resource,
                 HttpMethod.PUT,
                 new HttpEntity<>(newFilm),
                 Film.class
@@ -105,20 +120,22 @@ public class FilmControllerTest {
     }
 
     @Test
-    void getFilms() {
-        ResponseEntity<Film[]> response = restTemplate.getForEntity("/films", Film[].class);
-        Film[] films = response.getBody();
-        Film film1 = new Film("Film", "Film is a test entity",
+    void shouldGetFilms() {
+        Film film1 = new Film("Film 1", "Film 1 is a test entity",
                 LocalDate.parse("1985-10-20"), 90);
-        film1.setId(1);
-        Film film2 = new Film("Film Updated", "Film Updated is a test entity",
+        ResponseEntity<Film> response = restTemplate.postForEntity(resource, film1, Film.class);
+        film1 = response.getBody();
+        Film film2 = new Film("Film 2", "Film 2 is a test entity",
                 LocalDate.parse("1995-10-20"), 190);
-        film2.setId(2);
+        response = restTemplate.postForEntity(resource, film2, Film.class);
+        film2 = response.getBody();
+        ResponseEntity<Film[]> getResponse = restTemplate.getForEntity(resource, Film[].class);
+        Film[] films = getResponse.getBody();
 
         assertEquals(response.getStatusCode(), HttpStatus.OK);
         assertNotNull(films);
-        assertEquals(films.length, 2);
-        assertEquals(films[0], film1);
-        assertEquals(films[1], film2);
+        assertEquals(2, films.length);
+        assertEquals(film1, films[0]);
+        assertEquals(film2, films[1]);
     }
 }
