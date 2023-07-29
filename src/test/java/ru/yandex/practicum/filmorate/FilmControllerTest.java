@@ -38,7 +38,7 @@ public class FilmControllerTest {
 
         film.setId(addedFilm.getId());
 
-        assertEquals(response.getStatusCode(), HttpStatus.OK);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(film, addedFilm);
     }
 
@@ -99,7 +99,7 @@ public class FilmControllerTest {
         );
         Film updatedFilm = response.getBody();
 
-        assertEquals(response.getStatusCode(), HttpStatus.OK);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(updatedFilm);
         assertEquals(newFilm, updatedFilm);
     }
@@ -116,7 +116,7 @@ public class FilmControllerTest {
                 Film.class
         );
 
-        assertEquals(response.getStatusCode(), HttpStatus.NOT_FOUND);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test
@@ -132,7 +132,7 @@ public class FilmControllerTest {
         ResponseEntity<Film[]> getResponse = restTemplate.getForEntity(resource, Film[].class);
         Film[] films = getResponse.getBody();
 
-        assertEquals(response.getStatusCode(), HttpStatus.OK);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(films);
         assertEquals(2, films.length);
         assertEquals(film1, films[0]);

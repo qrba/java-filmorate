@@ -1,12 +1,14 @@
-package ru.yandex.practicum.filmorate.validators;
+package ru.yandex.practicum.filmorate.service.validators;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 
 @Slf4j
+@Service
 public class UserValidator {
     public void validate(User user) {
         if (!user.getEmail().contains("@")) throwValidationException("Некорректный email пользователя.");
