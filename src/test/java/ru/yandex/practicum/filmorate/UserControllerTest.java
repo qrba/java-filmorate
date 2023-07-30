@@ -16,6 +16,7 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -138,5 +139,261 @@ public class UserControllerTest {
         assertEquals(2, users.length);
         assertEquals(user1, users[0]);
         assertEquals(user2, users[1]);
+    }
+
+    @Test
+    void shouldGetUserById() {
+        User user = new User("test@email.com", "testLogin", LocalDate.parse("2000-05-25"));
+        ResponseEntity<User> response = restTemplate.postForEntity(resource, user, User.class);
+        User addedUser = response.getBody();
+
+        assertNotNull(addedUser);
+
+        ResponseEntity<User> getResponse = restTemplate.getForEntity(resource + "/" + addedUser.getId(), User.class);
+        User receivedUser = getResponse.getBody();
+
+        assertEquals(HttpStatus.OK, getResponse.getStatusCode());
+        assertNotNull(receivedUser);
+        assertEquals(addedUser, receivedUser);
+    }
+
+    @Test
+    void shouldNotGetUserByIdWhenIncorrectId() {
+        ResponseEntity<User> response = restTemplate.getForEntity(resource + "/1", User.class);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    void shouldAddFriend() {
+        User user1 = new User("test1@email.com", "testLogin1", LocalDate.parse("2000-05-25"));
+        ResponseEntity<User> response = restTemplate.postForEntity(resource, user1, User.class);
+        user1 = response.getBody();
+        User user2 = new User("test2@email.com", "testLogin2", LocalDate.parse("1990-06-11"));
+        response = restTemplate.postForEntity(resource, user2, User.class);
+        user2 = response.getBody();
+
+        assertNotNull(user1);
+        assertNotNull(user2);
+
+        ResponseEntity<Void> voidResponse = restTemplate.exchange(
+                resource + "/" + user1.getId() + "/friends/" + user2.getId(),
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                Void.class
+        );
+        ResponseEntity<User> getResponse = restTemplate.getForEntity(resource + "/" + user1.getId(), User.class);
+        user1 = getResponse.getBody();
+        getResponse = restTemplate.getForEntity(resource + "/" + user2.getId(), User.class);
+        user2 = getResponse.getBody();
+
+        assertEquals(HttpStatus.OK, voidResponse.getStatusCode());
+        assertNotNull(user1);
+        assertNotNull(user2);
+        assertEquals(1, user1.getFriends().size());
+        assertTrue(user1.getFriends().contains(user2.getId()));
+        assertEquals(1, user2.getFriends().size());
+        assertTrue(user2.getFriends().contains(user1.getId()));
+    }
+
+    @Test
+    void shouldNotAddFriendWhenIncorrectId() {
+        ResponseEntity<Void> response = restTemplate.exchange(
+                resource + "/1/friends/2",
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                Void.class
+        );
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    void shouldDeleteFriend() {
+        User user1 = new User("test1@email.com", "testLogin1", LocalDate.parse("2000-05-25"));
+        ResponseEntity<User> response = restTemplate.postForEntity(resource, user1, User.class);
+        user1 = response.getBody();
+        User user2 = new User("test2@email.com", "testLogin2", LocalDate.parse("1990-06-11"));
+        response = restTemplate.postForEntity(resource, user2, User.class);
+        user2 = response.getBody();
+
+        assertNotNull(user1);
+        assertNotNull(user2);
+
+        ResponseEntity<Void> voidResponse = restTemplate.exchange(
+                resource + "/" + user1.getId() + "/friends/" + user2.getId(),
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                Void.class
+        );
+
+        assertEquals(HttpStatus.OK, voidResponse.getStatusCode());
+
+        voidResponse = restTemplate.exchange(
+                resource + "/" + user1.getId() + "/friends/" + user2.getId(),
+                HttpMethod.DELETE,
+                HttpEntity.EMPTY,
+                Void.class
+        );
+        ResponseEntity<User> getResponse = restTemplate.getForEntity(resource + "/" + user1.getId(), User.class);
+        user1 = getResponse.getBody();
+        getResponse = restTemplate.getForEntity(resource + "/" + user2.getId(), User.class);
+        user2 = getResponse.getBody();
+
+        assertEquals(HttpStatus.OK, voidResponse.getStatusCode());
+        assertNotNull(user1);
+        assertNotNull(user2);
+        assertTrue(user1.getFriends().isEmpty());
+        assertTrue(user2.getFriends().isEmpty());
+    }
+
+    @Test
+    void shouldNotDeleteFriendWhenIncorrectId() {
+        ResponseEntity<Void> response = restTemplate.exchange(
+                resource + "/1/friends/2",
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                Void.class
+        );
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    void shouldGetFriends() {
+        User user1 = new User("test1@email.com", "testLogin1", LocalDate.parse("2000-05-25"));
+        ResponseEntity<User> response = restTemplate.postForEntity(resource, user1, User.class);
+        user1 = response.getBody();
+        User user2 = new User("test2@email.com", "testLogin2", LocalDate.parse("1990-06-11"));
+        response = restTemplate.postForEntity(resource, user2, User.class);
+        user2 = response.getBody();
+
+        assertNotNull(user1);
+        assertNotNull(user2);
+
+        ResponseEntity<Void> voidResponse = restTemplate.exchange(
+                resource + "/" + user1.getId() + "/friends/" + user2.getId(),
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                Void.class
+        );
+        response = restTemplate.getForEntity(resource + "/" + user1.getId(), User.class);
+        user1 = response.getBody();
+        response = restTemplate.getForEntity(resource + "/" + user2.getId(), User.class);
+        user2 = response.getBody();
+
+        assertEquals(HttpStatus.OK, voidResponse.getStatusCode());
+        assertNotNull(user1);
+        assertNotNull(user2);
+
+        ResponseEntity<User[]> getResponse = restTemplate.getForEntity(
+                resource + "/" + user1.getId() + "/friends",
+                User[].class
+        );
+        User[] friends = getResponse.getBody();
+
+        assertNotNull(friends);
+        assertEquals(1, friends.length);
+        assertEquals(user2, friends[0]);
+
+        getResponse = restTemplate.getForEntity(
+                resource + "/" + user2.getId() + "/friends",
+                User[].class
+        );
+        friends = getResponse.getBody();
+
+        assertNotNull(friends);
+        assertEquals(1, friends.length);
+        assertEquals(user1, friends[0]);
+    }
+
+    @Test
+    void shouldNotGetFriendsWhenIncorrectId() {
+        ResponseEntity<Void> response = restTemplate.exchange(
+                resource + "/1/friends",
+                HttpMethod.GET,
+                HttpEntity.EMPTY,
+                Void.class
+        );
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+    }
+
+    @Test
+    void shouldGetCommonFriends() {
+        User user1 = new User("test1@email.com", "testLogin1", LocalDate.parse("2000-05-25"));
+        ResponseEntity<User> response = restTemplate.postForEntity(resource, user1, User.class);
+        user1 = response.getBody();
+        User user2 = new User("test2@email.com", "testLogin2", LocalDate.parse("1990-06-11"));
+        response = restTemplate.postForEntity(resource, user2, User.class);
+        user2 = response.getBody();
+        User user3 = new User("test3@email.com", "testLogin3", LocalDate.parse("1995-08-02"));
+        response = restTemplate.postForEntity(resource, user3, User.class);
+        user3 = response.getBody();
+
+        assertNotNull(user1);
+        assertNotNull(user2);
+        assertNotNull(user3);
+
+        ResponseEntity<Void> voidResponse = restTemplate.exchange(
+                resource + "/" + user1.getId() + "/friends/" + user2.getId(),
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                Void.class
+        );
+
+        assertEquals(HttpStatus.OK, voidResponse.getStatusCode());
+
+        voidResponse = restTemplate.exchange(
+                resource + "/" + user1.getId() + "/friends/" + user3.getId(),
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                Void.class
+        );
+
+        assertEquals(HttpStatus.OK, voidResponse.getStatusCode());
+
+        voidResponse = restTemplate.exchange(
+                resource + "/" + user2.getId() + "/friends/" + user3.getId(),
+                HttpMethod.PUT,
+                HttpEntity.EMPTY,
+                Void.class
+        );
+
+        assertEquals(HttpStatus.OK, voidResponse.getStatusCode());
+
+        response = restTemplate.getForEntity(resource + "/" + user1.getId(), User.class);
+        user1 = response.getBody();
+        response = restTemplate.getForEntity(resource + "/" + user2.getId(), User.class);
+        user2 = response.getBody();
+        response = restTemplate.getForEntity(resource + "/" + user3.getId(), User.class);
+        user3 = response.getBody();
+
+        assertNotNull(user1);
+        assertNotNull(user2);
+        assertNotNull(user3);
+
+        ResponseEntity<User[]> getResponse = restTemplate.getForEntity(
+                resource + "/" + user1.getId() + "/friends/common/" + user3.getId(),
+                User[].class
+        );
+        User[] friends = getResponse.getBody();
+
+        assertEquals(HttpStatus.OK, getResponse.getStatusCode());
+        assertNotNull(friends);
+        assertEquals(1, friends.length);
+        assertEquals(user2, friends[0]);
+    }
+
+    @Test
+    void shouldNotGetCommonFriendsWhenIncorrectId() {
+        ResponseEntity<Void> response = restTemplate.exchange(
+                resource + "/1/friends/common/2",
+                HttpMethod.GET,
+                HttpEntity.EMPTY,
+                Void.class
+        );
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 }
