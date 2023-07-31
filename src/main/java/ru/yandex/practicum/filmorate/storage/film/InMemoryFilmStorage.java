@@ -38,7 +38,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Film update(Film film) {
         validate(film);
         int id = film.getId();
-        if (films.get(id) == null) throwFilmNotFoundException("Фильм с id=" + id + " не найден.");
+        if (films.get(id) == null) throw new FilmNotFoundException("Фильм с id=" + id + " не найден.");
         films.put(id, film);
         log.info("Обновлен фильм {}.", film);
         return film;
@@ -47,12 +47,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film getFilmById(int id) {
         Film film = films.get(id);
-        if (film == null) throwFilmNotFoundException("Фильм с id=" + id + " не найден.");
+        if (film == null) throw new FilmNotFoundException("Фильм с id=" + id + " не найден.");
         return film;
-    }
-
-    private void throwFilmNotFoundException(String message) {
-        log.error(message);
-        throw new FilmNotFoundException(message);
     }
 }
