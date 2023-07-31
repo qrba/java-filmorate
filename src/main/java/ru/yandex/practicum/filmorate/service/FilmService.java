@@ -11,6 +11,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static ru.yandex.practicum.filmorate.service.validators.FilmValidator.validate;
+
 @Service
 @RequiredArgsConstructor
 public class FilmService {
@@ -22,10 +24,12 @@ public class FilmService {
     }
 
     public Film add(Film film) {
+        validate(film);
         return storage.add(film);
     }
 
     public Film update(Film film) {
+        validate(film);
         return storage.update(film);
     }
 

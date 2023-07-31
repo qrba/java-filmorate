@@ -10,8 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static ru.yandex.practicum.filmorate.service.validators.FilmValidator.validate;
-
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -26,7 +24,6 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film add(Film film) {
-        validate(film);
         idCounter++;
         film.setId(idCounter);
         films.put(idCounter, film);
@@ -36,7 +33,6 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film update(Film film) {
-        validate(film);
         int id = film.getId();
         if (films.get(id) == null) throw new FilmNotFoundException("Фильм с id=" + id + " не найден.");
         films.put(id, film);
