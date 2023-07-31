@@ -5,9 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.validators.UserValidator;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -15,17 +15,15 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class InMemoryUserStorage implements UserStorage {
     private final Map<Integer, User> users;
-    private final UserValidator validator;
     private int idCounter;
 
     @Override
-    public Collection<User> getAll() {
-        return users.values();
+    public List<User> getAll() {
+        return new ArrayList<>(users.values());
     }
 
     @Override
     public User add(User user) {
-        validator.validate(user);
         setName(user);
         idCounter++;
         user.setId(idCounter);
@@ -36,7 +34,6 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User update(User user) {
-        validator.validate(user);
         int id = user.getId();
         if (users.get(id) == null) throwUserNotFoundException("Пользователь с id=" + id + " не найден.");
         setName(user);

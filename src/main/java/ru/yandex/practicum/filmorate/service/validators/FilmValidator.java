@@ -1,16 +1,14 @@
 package ru.yandex.practicum.filmorate.service.validators;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
 
 @Slf4j
-@Service
 public class FilmValidator {
-    public void validate(Film film) {
+    public static void validate(Film film) {
         if (film.getName().isEmpty()) throwValidationException("Пустое имя фильма.");
         if (film.getDescription().length() > 200) throwValidationException("Превышен допустимый размер описания.");
         if (film.getReleaseDate().isBefore(LocalDate.parse("1895-12-28")))
@@ -18,7 +16,7 @@ public class FilmValidator {
         if (film.getDuration() <= 0) throwValidationException("Отрицательная продолжительность фильма.");
     }
 
-    private void throwValidationException(String message) {
+    private static void throwValidationException(String message) {
         log.warn(message);
         throw new ValidationException(message);
     }

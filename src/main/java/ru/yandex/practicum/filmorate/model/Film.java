@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.annotations.IsAfter;
 
@@ -24,6 +25,7 @@ public class Film {
     private final LocalDate releaseDate;
     @Positive
     private final int duration;
+    @JsonIgnore
     private final Set<Integer> likes = new HashSet<>();
 
     public void addLike(int id) {

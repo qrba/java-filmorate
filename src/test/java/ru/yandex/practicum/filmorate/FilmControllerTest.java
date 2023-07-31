@@ -184,12 +184,8 @@ public class FilmControllerTest {
                 HttpEntity.EMPTY,
                 Void.class
         );
-        ResponseEntity<Film> getResponse = restTemplate.getForEntity(resource + "/" + addedFilm.getId(), Film.class);
-        Film receivedFilm = getResponse.getBody();
 
-        assertNotNull(receivedFilm);
         assertEquals(HttpStatus.OK, voidResponse.getStatusCode());
-        assertEquals(1,receivedFilm.getLikesNumber());
     }
 
     @Test
@@ -311,7 +307,7 @@ public class FilmControllerTest {
         assertEquals(HttpStatus.OK, getResponse.getStatusCode());
         assertNotNull(popular);
         assertEquals(2, popular.length);
-        assertEquals(2, popular[0].getLikesNumber());
-        assertEquals(1, popular[1].getLikesNumber());
+        assertEquals(film1, popular[0]);
+        assertEquals(film2, popular[1]);
     }
 }

@@ -5,24 +5,27 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static ru.yandex.practicum.filmorate.service.validators.UserValidator.validate;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserStorage storage;
 
-    public Collection<User> getUsers() {
+    public List<User> getUsers() {
         return storage.getAll();
     }
 
     public User add(User user) {
+        validate(user);
         return storage.add(user);
     }
 
     public User update(User user) {
+        validate(user);
         return storage.update(user);
     }
 

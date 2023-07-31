@@ -5,27 +5,28 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.validators.FilmValidator;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+
+import static ru.yandex.practicum.filmorate.service.validators.FilmValidator.validate;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class InMemoryFilmStorage implements FilmStorage {
-    private final FilmValidator validator;
     private final Map<Integer, Film> films;
     private int idCounter;
 
     @Override
-    public Collection<Film> getAll() {
-        return films.values();
+    public List<Film> getAll() {
+        return new ArrayList<>(films.values());
     }
 
     @Override
     public Film add(Film film) {
-        validator.validate(film);
+        validate(film);
         idCounter++;
         film.setId(idCounter);
         films.put(idCounter, film);
@@ -35,7 +36,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film update(Film film) {
-        validator.validate(film);
+        validate(film);
         int id = film.getId();
         if (films.get(id) == null) throwFilmNotFoundException("Фильм с id=" + id + " не найден.");
         films.put(id, film);
