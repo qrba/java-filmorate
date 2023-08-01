@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.validators;
+package ru.yandex.practicum.filmorate.service.validators;
 
 import ru.yandex.practicum.filmorate.annotations.IsAfter;
 
