@@ -14,7 +14,7 @@ import java.util.Set;
 
 @Data
 public class Film {
-    private int id = 0;
+    private int id;
     @NotBlank
     private final String name;
     @NotNull
@@ -25,8 +25,11 @@ public class Film {
     private final LocalDate releaseDate;
     @Positive
     private final int duration;
+    private RatingMPA ratingMPA; //TODO setting rating
     @JsonIgnore
     private final Set<Integer> likes = new HashSet<>();
+    @JsonIgnore
+    private final Set<Genre> genres = new HashSet<>();
 
     public void addLike(int id) {
         likes.add(id);

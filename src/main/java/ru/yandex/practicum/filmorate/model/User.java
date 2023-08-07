@@ -9,12 +9,13 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Past;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 @Data
 public class User {
-    private int id = 0;
+    private int id;
     @NotNull
     @Email
     private final String email;
@@ -26,17 +27,17 @@ public class User {
     @Past
     private final LocalDate birthday;
     @JsonIgnore
-    private final Set<Integer> friends = new HashSet<>();
+    private final Map<Integer, Boolean> friends = new HashMap<>();
 
     public void addFriend(int id) {
-        friends.add(id);
-    }
+        friends.put(id, false);
+    } //TODO adding and confirming friends
 
     public void deleteFriend(int id) {
         friends.remove(id);
     }
 
     public Set<Integer> getFriends() {
-        return friends;
+        return friends.keySet();
     }
 }
