@@ -31,7 +31,7 @@ public class User {
 
     public void addFriend(int id) {
         friends.put(id, false);
-    } //TODO adding and confirming friends
+    }
 
     public void deleteFriend(int id) {
         friends.remove(id);

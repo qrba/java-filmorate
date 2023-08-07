@@ -25,7 +25,7 @@ public class Film {
     private final LocalDate releaseDate;
     @Positive
     private final int duration;
-    private RatingMPA ratingMPA; //TODO setting rating
+    private RatingMPA ratingMPA;
     @JsonIgnore
     private final Set<Integer> likes = new HashSet<>();
     @JsonIgnore
