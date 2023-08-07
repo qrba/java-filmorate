@@ -28,6 +28,7 @@ SELECT users.*
 FROM users
 JOIN friends ON users.id = friends.friend_id
 WHERE friends.user_id = ?
+ORDER BY users.id
 ```
 
 </details>
@@ -51,7 +52,7 @@ SELECT films.*,
 FROM films
 LEFT JOIN film_likes ON films.id = film_likes.film_id
 WHERE films.id = ?
-GROUP BY films.film_id
+GROUP BY films.id
 ```
 * получение списка из первых `count` фильмов по количеству лайков
 ```SQL
@@ -60,7 +61,7 @@ SELECT films.*,
 FROM films
 LEFT JOIN film_likes ON films.id = film_likes.film_id
 GROUP BY films.id
-ORDER BY rate DESC, films.id
+ORDER BY likes DESC, films.id
 LIMIT ?
 ```
 
@@ -73,7 +74,7 @@ LIMIT ?
 ```SQL
 SELECT *
 FROM genres
-ORDER BY genre_id
+ORDER BY id
 ```
 * получение информации о жанре по его `id`
 ```SQL
