@@ -122,7 +122,7 @@ public class FilmDbStorage implements FilmStorage {
         values.put("description", film.getDescription());
         values.put("release_date", film.getReleaseDate());
         values.put("duration", film.getDuration());
-        values.put("mpa_rating_id", film.getMpa().getId());
+        values.put("mpa_id", film.getMpa().getId());
         return values;
     }
 

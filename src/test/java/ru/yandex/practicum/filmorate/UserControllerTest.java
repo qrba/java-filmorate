@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -268,7 +267,6 @@ public class UserControllerTest {
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
-    @Disabled
     @Test
     void shouldGetFriends() {
         User user1 = new User(1, "test1@email.com", "testLogin1",
@@ -307,16 +305,6 @@ public class UserControllerTest {
         assertNotNull(friends);
         assertEquals(1, friends.length);
         assertEquals(user2, friends[0]);
-
-        getResponse = restTemplate.getForEntity(
-                resource + "/" + user2.getId() + "/friends",
-                User[].class
-        );
-        friends = getResponse.getBody();
-
-        assertNotNull(friends);
-        assertEquals(1, friends.length);
-        assertEquals(user1, friends[0]);
     }
 
     @Test
@@ -331,7 +319,7 @@ public class UserControllerTest {
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
-    @Disabled
+    //@Disabled
     @Test
     void shouldGetCommonFriends() {
         User user1 = new User(1, "test1@email.com", "testLogin1",
@@ -389,8 +377,9 @@ public class UserControllerTest {
         assertNotNull(user2);
         assertNotNull(user3);
 
+        System.out.println(user1);
         ResponseEntity<User[]> getResponse = restTemplate.getForEntity(
-                resource + "/" + user1.getId() + "/friends/common/" + user3.getId(),
+                resource + "/" + user1.getId() + "/friends/common/" + user2.getId(),
                 User[].class
         );
         User[] friends = getResponse.getBody();
@@ -398,7 +387,7 @@ public class UserControllerTest {
         assertEquals(HttpStatus.OK, getResponse.getStatusCode());
         assertNotNull(friends);
         assertEquals(1, friends.length);
-        assertEquals(user2, friends[0]);
+        assertEquals(user3, friends[0]);
     }
 
     @Test

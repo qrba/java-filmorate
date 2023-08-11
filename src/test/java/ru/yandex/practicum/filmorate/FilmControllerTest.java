@@ -126,11 +126,11 @@ public class FilmControllerTest {
     @Test
     void shouldGetFilms() {
         Film film1 = new Film("Film 1", "Film 1 is a test entity",
-                LocalDate.parse("1985-10-20"), 90, new RatingMPA(0, null));
+                LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
         ResponseEntity<Film> response = restTemplate.postForEntity(resource, film1, Film.class);
         film1 = response.getBody();
         Film film2 = new Film("Film 2", "Film 2 is a test entity",
-                LocalDate.parse("1995-10-20"), 190, new RatingMPA(0, null));
+                LocalDate.parse("1995-10-20"), 190, new RatingMPA(1, "G"));
         response = restTemplate.postForEntity(resource, film2, Film.class);
         film2 = response.getBody();
         ResponseEntity<Film[]> getResponse = restTemplate.getForEntity(resource, Film[].class);
@@ -146,7 +146,7 @@ public class FilmControllerTest {
     @Test
     void shouldGetFilmById() {
         Film film = new Film("Film", "Film is a test entity",
-                LocalDate.parse("1985-10-20"), 90, new RatingMPA(0, null));
+                LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
         ResponseEntity<Film> response = restTemplate.postForEntity(resource, film, Film.class);
         Film addedFilm = response.getBody();
 
@@ -258,9 +258,9 @@ public class FilmControllerTest {
     @Test
     void shouldGetMostPopular() {
         Film film1 = new Film("Film 1", "Film 1 is a test entity",
-                LocalDate.parse("1985-10-20"), 90, new RatingMPA(0, null));
+                LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
         Film film2 = new Film("Film 2", "Film 2 is a test entity",
-                LocalDate.parse("1993-05-17"), 110, new RatingMPA(0, null));
+                LocalDate.parse("1993-05-17"), 110, new RatingMPA(1, "G"));
         ResponseEntity<Film> response = restTemplate.postForEntity(resource, film1, Film.class);
         film1 = response.getBody();
         response = restTemplate.postForEntity(resource, film2, Film.class);
