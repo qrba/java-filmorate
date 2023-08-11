@@ -9,9 +9,10 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
-@Component
+@Component("memoryUser")
 @RequiredArgsConstructor
 public class InMemoryUserStorage implements UserStorage {
     private final Map<Integer, User> users;
@@ -24,7 +25,6 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User add(User user) {
-        setName(user);
         idCounter++;
         user.setId(idCounter);
         users.put(idCounter, user);
@@ -36,7 +36,6 @@ public class InMemoryUserStorage implements UserStorage {
     public User update(User user) {
         int id = user.getId();
         if (users.get(id) == null) throw new UserNotFoundException("Пользователь с id=" + id + " не найден.");
-        setName(user);
         users.put(id, user);
         log.info("Обновлен пользователь {}.", user);
         return user;
@@ -49,7 +48,34 @@ public class InMemoryUserStorage implements UserStorage {
         return user;
     }
 
-    private void setName(User user) {
-        if (user.getName() == null || user.getName().isBlank()) user.setName(user.getLogin());
+    @Override
+    public void addFriend(int id, int friendId) {
+        User user = getUserById(id);
+        User friend = getUserById(friendId);
+        user.addFriend(friendId);
+        friend.addFriend(id);
+    }
+
+    @Override
+    public void deleteFriend(int id, int friendId) {
+        User user = getUserById(id);
+        User friend = getUserById(friendId);
+        user.deleteFriend(friendId);
+        friend.deleteFriend(id);
+    }
+
+    @Override
+    public List<User> getFriends(int id) {
+        return getUserById(id).getFriends().stream()
+                .map(this::getUserById)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<User> getCommonFriends(int id, int otherId) {
+        return getUserById(id).getFriends().stream()
+                .filter(this.getUserById(otherId).getFriends()::contains)
+                .map(this::getUserById)
+                .collect(Collectors.toList());
     }
 }

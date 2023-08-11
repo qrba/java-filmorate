@@ -1,22 +1,23 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static ru.yandex.practicum.filmorate.service.validators.FilmValidator.validate;
 
 @Service
 @RequiredArgsConstructor
 public class FilmService {
+    @Qualifier("databaseFilm")
     private final FilmStorage storage;
+
+    @Qualifier("databaseUser")
     private final UserStorage userStorage;
 
     public List<Film> getFilms() {
@@ -34,22 +35,17 @@ public class FilmService {
     }
 
     public void addLike(int id, int userId) {
-        Film film = storage.getFilmById(id);
-        User user = userStorage.getUserById(userId);
-        film.addLike(userId);
+        userStorage.getUserById(userId);
+        storage.addLike(id, userId);
     }
 
     public void deleteLike(int id, int userId) {
-        Film film = storage.getFilmById(id);
-        User user = userStorage.getUserById(userId);
-        film.deleteLike(userId);
+        userStorage.getUserById(userId);
+        storage.deleteLike(id, userId);
     }
 
     public List<Film> getMostPopular(int size) {
-        return storage.getAll().stream()
-                .sorted(Comparator.comparingInt(Film::getLikesNumber).reversed())
-                .limit(size)
-                .collect(Collectors.toList());
+        return storage.getMostPopular(size);
     }
 
     public Film getFilmById(int id) {

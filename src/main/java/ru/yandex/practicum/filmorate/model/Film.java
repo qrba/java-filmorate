@@ -9,7 +9,9 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -25,11 +27,10 @@ public class Film {
     private final LocalDate releaseDate;
     @Positive
     private final int duration;
-    private RatingMPA ratingMPA;
+    private final RatingMPA mpa;
+    private List<Genre> genres = new ArrayList<>();
     @JsonIgnore
-    private final Set<Integer> likes = new HashSet<>();
-    @JsonIgnore
-    private final Set<Genre> genres = new HashSet<>();
+    private Set<Integer> likes = new HashSet<>();
 
     public void addLike(int id) {
         likes.add(id);

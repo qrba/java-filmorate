@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
@@ -11,13 +12,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.RatingMPA;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-
+@AutoConfigureTestDatabase
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class FilmControllerTest {
@@ -31,7 +33,7 @@ public class FilmControllerTest {
     @Test
     void shouldAddFilm() {
         Film film = new Film("Film", "Film is a test entity",
-                LocalDate.parse("1985-10-20"), 90);
+                LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
         ResponseEntity<Film> response = restTemplate.postForEntity(resource, film, Film.class);
         Film addedFilm = response.getBody();
 
@@ -46,7 +48,7 @@ public class FilmControllerTest {
     @Test
     void shouldNotAddFilmWhenIncorrectName() {
         Film film = new Film("", "Film is a test entity",
-                LocalDate.parse("1985-10-20"), 90);
+                LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
         ResponseEntity<Film> response = restTemplate.postForEntity(resource, film, Film.class);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -54,9 +56,10 @@ public class FilmControllerTest {
 
     @Test
     void shouldNotAddFilmWhenIncorrectDescription() {
-        Film film = new Film("Film", "Very very very very very very very very very very very very very " +
+        Film film = new Film("Film", "Very very very very very very very very very very very very " +
                 "very very very very very very very very very very very very very very very very very very very very " +
-                "very very very very very very very long description", LocalDate.parse("1985-10-20"), 90);
+                "very very very very very very very very long description",
+                LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
         ResponseEntity<Film> response = restTemplate.postForEntity(resource, film, Film.class);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -65,7 +68,7 @@ public class FilmControllerTest {
     @Test
     void shouldNotAddFilmWhenIncorrectReleaseDate() {
         Film film = new Film("Film", "Film is a test entity",
-                LocalDate.parse("1885-10-20"), 90);
+                LocalDate.parse("1885-10-20"), 90, new RatingMPA(1, "G"));
         ResponseEntity<Film> response = restTemplate.postForEntity(resource, film, Film.class);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -74,7 +77,7 @@ public class FilmControllerTest {
     @Test
     void shouldNotAddFilmWhenIncorrectDuration() {
         Film film = new Film("Film", "Film is a test entity",
-                LocalDate.parse("1985-10-20"), -90);
+                LocalDate.parse("1985-10-20"), -90, new RatingMPA(1, "G"));
         ResponseEntity<Film> response = restTemplate.postForEntity(resource, film, Film.class);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -83,11 +86,11 @@ public class FilmControllerTest {
     @Test
     void shouldUpdateFilm() {
         Film film = new Film("Film", "Film is a test entity",
-                LocalDate.parse("1985-10-20"), 90);
+                LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
         ResponseEntity<Film> response = restTemplate.postForEntity(resource, film, Film.class);
         Film addedFilm = response.getBody();
         Film newFilm = new Film("Film Updated", "Film Updated is a test entity",
-                LocalDate.parse("1995-10-20"), 190);
+                LocalDate.parse("1995-10-20"), 190, new RatingMPA(1, "G"));
 
         assertNotNull(addedFilm);
 
@@ -108,7 +111,7 @@ public class FilmControllerTest {
     @Test
     void shouldNotUpdateFilmWhenIncorrectId() {
         Film newFilm = new Film("Film Updated", "Film Updated is a test entity",
-                LocalDate.parse("1995-10-20"), 190);
+                LocalDate.parse("1995-10-20"), 190, new RatingMPA(1, "G"));
         newFilm.setId(999);
         ResponseEntity<Film> response = restTemplate.exchange(
                 resource,
@@ -123,11 +126,11 @@ public class FilmControllerTest {
     @Test
     void shouldGetFilms() {
         Film film1 = new Film("Film 1", "Film 1 is a test entity",
-                LocalDate.parse("1985-10-20"), 90);
+                LocalDate.parse("1985-10-20"), 90, new RatingMPA(0, null));
         ResponseEntity<Film> response = restTemplate.postForEntity(resource, film1, Film.class);
         film1 = response.getBody();
         Film film2 = new Film("Film 2", "Film 2 is a test entity",
-                LocalDate.parse("1995-10-20"), 190);
+                LocalDate.parse("1995-10-20"), 190, new RatingMPA(0, null));
         response = restTemplate.postForEntity(resource, film2, Film.class);
         film2 = response.getBody();
         ResponseEntity<Film[]> getResponse = restTemplate.getForEntity(resource, Film[].class);
@@ -143,7 +146,7 @@ public class FilmControllerTest {
     @Test
     void shouldGetFilmById() {
         Film film = new Film("Film", "Film is a test entity",
-                LocalDate.parse("1985-10-20"), 90);
+                LocalDate.parse("1985-10-20"), 90, new RatingMPA(0, null));
         ResponseEntity<Film> response = restTemplate.postForEntity(resource, film, Film.class);
         Film addedFilm = response.getBody();
 
@@ -166,13 +169,14 @@ public class FilmControllerTest {
     @Test
     void shouldAddLike() {
         Film film = new Film("Film", "Film is a test entity",
-                LocalDate.parse("1985-10-20"), 90);
+                LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
         ResponseEntity<Film> response = restTemplate.postForEntity(resource, film, Film.class);
         Film addedFilm = response.getBody();
 
         assertNotNull(addedFilm);
 
-        User user = new User("test@email.com", "testLoginAndName", LocalDate.parse("2000-05-25"));
+        User user = new User(1, "test@email.com", "testLoginAndName",
+                null, LocalDate.parse("2000-05-25"));
         ResponseEntity<User> responseUser = restTemplate.postForEntity("/users", user, User.class);
         User addedUser = responseUser.getBody();
 
@@ -203,13 +207,14 @@ public class FilmControllerTest {
     @Test
     void shouldDeleteLike() {
         Film film = new Film("Film", "Film is a test entity",
-                LocalDate.parse("1985-10-20"), 90);
+                LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
         ResponseEntity<Film> response = restTemplate.postForEntity(resource, film, Film.class);
         Film addedFilm = response.getBody();
 
         assertNotNull(addedFilm);
 
-        User user = new User("test@email.com", "testLoginAndName", LocalDate.parse("2000-05-25"));
+        User user = new User(1, "test@email.com", "testLoginAndName",
+                null, LocalDate.parse("2000-05-25"));
         ResponseEntity<User> responseUser = restTemplate.postForEntity("/users", user, User.class);
         User addedUser = responseUser.getBody();
 
@@ -253,9 +258,9 @@ public class FilmControllerTest {
     @Test
     void shouldGetMostPopular() {
         Film film1 = new Film("Film 1", "Film 1 is a test entity",
-                LocalDate.parse("1985-10-20"), 90);
+                LocalDate.parse("1985-10-20"), 90, new RatingMPA(0, null));
         Film film2 = new Film("Film 2", "Film 2 is a test entity",
-                LocalDate.parse("1993-05-17"), 110);
+                LocalDate.parse("1993-05-17"), 110, new RatingMPA(0, null));
         ResponseEntity<Film> response = restTemplate.postForEntity(resource, film1, Film.class);
         film1 = response.getBody();
         response = restTemplate.postForEntity(resource, film2, Film.class);
@@ -264,8 +269,10 @@ public class FilmControllerTest {
         assertNotNull(film1);
         assertNotNull(film2);
 
-        User user1 = new User("test1@email.com", "test1LoginAndName", LocalDate.parse("2000-05-25"));
-        User user2 = new User("test2@email.com", "test2LoginAndName", LocalDate.parse("1983-11-06"));
+        User user1 = new User(1, "test1@email.com", "test1LoginAndName",
+                null, LocalDate.parse("2000-05-25"));
+        User user2 = new User(2, "test2@email.com", "test2LoginAndName",
+                null, LocalDate.parse("1983-11-06"));
         ResponseEntity<User> responseUser = restTemplate.postForEntity("/users", user1, User.class);
         user1 = responseUser.getBody();
         responseUser = restTemplate.postForEntity("/users", user2, User.class);
