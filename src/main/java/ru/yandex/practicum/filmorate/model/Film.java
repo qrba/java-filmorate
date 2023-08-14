@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.annotations.IsAfter;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
@@ -27,7 +28,9 @@ public class Film {
     private final LocalDate releaseDate;
     @Positive
     private final int duration;
+    @Valid
     private final RatingMPA mpa;
+    @Valid
     private List<Genre> genres = new ArrayList<>();
     @JsonIgnore
     private Set<Integer> likes = new HashSet<>();

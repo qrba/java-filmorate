@@ -13,12 +13,12 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.RatingMPA;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @AutoConfigureTestDatabase
@@ -105,42 +105,7 @@ public class FilmStorageTest {
     }
 
     @Test
-    void shouldAddLike() {
-        Film film = new Film("Film", "Film is a test entity",
-                LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
-        storage.add(film);
-        User user = new User(1, "test@email.com", "testLogin",
-                "testUsername", LocalDate.parse("2000-05-25"));
-        userStorage.add(user);
-
-        assertDoesNotThrow(() -> storage.addLike(film.getId(), user.getId()));
-    }
-
-    @Test
-    void shouldNotAddLikeWhenIncorrectId() {
-        FilmNotFoundException e = Assertions.assertThrows(
-                FilmNotFoundException.class,
-                () -> storage.addLike(1, 1)
-        );
-
-        assertEquals("Фильм с id=1 не найден.", e.getMessage());
-    }
-
-    @Test
-    void shouldDeleteLike() {
-        Film film = new Film("Film", "Film is a test entity",
-                LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
-        storage.add(film);
-        User user = new User(1, "test@email.com", "testLogin",
-                "testUsername", LocalDate.parse("2000-05-25"));
-        userStorage.add(user);
-        storage.addLike(film.getId(), user.getId());
-
-        assertDoesNotThrow(() -> storage.deleteLike(film.getId(), user.getId()));
-    }
-
-    @Test
-    void shouldGetMostPopular() {
+    void shouldGetMostPopular(@Autowired LikeStorage likeStorage) {
         Film film1 = new Film("Film 1", "Film 1 is a test entity",
                 LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
         storage.add(film1);
@@ -150,7 +115,7 @@ public class FilmStorageTest {
         User user = new User(1, "test@email.com", "testLogin",
                 "testUsername", LocalDate.parse("2000-05-25"));
         userStorage.add(user);
-        storage.addLike(film2.getId(), user.getId());
+        likeStorage.addLike(film2.getId(), user.getId());
         List<Film> mostPopular = storage.getMostPopular(10);
 
         assertEquals(film2, mostPopular.get(0));

@@ -48,7 +48,6 @@ public class InMemoryUserStorage implements UserStorage {
         return user;
     }
 
-    @Override
     public void addFriend(int id, int friendId) {
         User user = getUserById(id);
         User friend = getUserById(friendId);
@@ -56,7 +55,6 @@ public class InMemoryUserStorage implements UserStorage {
         friend.addFriend(id);
     }
 
-    @Override
     public void deleteFriend(int id, int friendId) {
         User user = getUserById(id);
         User friend = getUserById(friendId);
@@ -64,14 +62,12 @@ public class InMemoryUserStorage implements UserStorage {
         friend.deleteFriend(id);
     }
 
-    @Override
     public List<User> getFriends(int id) {
         return getUserById(id).getFriends().stream()
                 .map(this::getUserById)
                 .collect(Collectors.toList());
     }
 
-    @Override
     public List<User> getCommonFriends(int id, int otherId) {
         return getUserById(id).getFriends().stream()
                 .filter(this.getUserById(otherId).getFriends()::contains)

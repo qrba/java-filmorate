@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.friend.FriendStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
@@ -16,8 +17,14 @@ public class UserService {
     @Qualifier("databaseUser")
     private final UserStorage storage;
 
+    private final FriendStorage friendStorage;
+
     public List<User> getUsers() {
         return storage.getAll();
+    }
+
+    public User getUserById(int id) {
+        return storage.getUserById(id);
     }
 
     public User add(User user) {
@@ -30,23 +37,26 @@ public class UserService {
         return storage.update(user);
     }
 
-    public void addFriend(int id, int friendId) {
-        storage.addFriend(id, friendId);
+    public void addFriend(int userId, int friendId) {
+        getUserById(userId);
+        getUserById(friendId);
+        friendStorage.addFriend(userId, friendId);
     }
 
-    public void deleteFriend(int id, int friendId) {
-        storage.deleteFriend(id, friendId);
+    public void deleteFriend(int userId, int friendId) {
+        getUserById(userId);
+        getUserById(friendId);
+        friendStorage.deleteFriend(userId, friendId);
     }
 
     public List<User> getFriends(int id) {
-        return storage.getFriends(id);
+        getUserById(id);
+        return friendStorage.getFriends(id);
     }
 
     public List<User> getCommonFriends(int id, int otherId) {
-        return storage.getCommonFriends(id, otherId);
-    }
-
-    public User getUserById(int id) {
-        return storage.getUserById(id);
+        getUserById(id);
+        getUserById(otherId);
+        return friendStorage.getCommonFriends(id, otherId);
     }
 }

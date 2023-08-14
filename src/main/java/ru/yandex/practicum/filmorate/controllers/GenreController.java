@@ -17,7 +17,7 @@ public class GenreController {
     private final GenreService service;
 
     @GetMapping
-    public List<Genre> getRatingsMPA() {
+    public List<Genre> getGenres() {
         return service.getGenres();
     }
 

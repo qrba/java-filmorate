@@ -11,7 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-@Component("databaseMPA")
+@Component
 @RequiredArgsConstructor
 public class RatingMPADbStorage implements RatingMPAStorage {
     private final JdbcTemplate jdbcTemplate;
