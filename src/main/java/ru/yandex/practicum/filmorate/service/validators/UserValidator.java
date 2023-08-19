@@ -15,7 +15,7 @@ public class UserValidator {
         if (login.isEmpty() || login.contains(" "))
             throw new ModelValidationException("Некорректный логин пользователя.");
 
-        if (user.getName() == null) user.setName(user.getLogin());
+        if (user.getName() == null || user.getName().isBlank()) user.setName(user.getLogin());
 
         if (user.getBirthday().isAfter(LocalDate.now()))
             throw new ModelValidationException("Некорректная дата рождения пользователя.");

@@ -7,11 +7,13 @@ import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
-@Component
+@Component("memoryFilm")
 @RequiredArgsConstructor
 public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Integer, Film> films;
@@ -45,5 +47,23 @@ public class InMemoryFilmStorage implements FilmStorage {
         Film film = films.get(id);
         if (film == null) throw new FilmNotFoundException("Фильм с id=" + id + " не найден.");
         return film;
+    }
+
+    public void addLike(int id, int userId) {
+        Film film = getFilmById(id);
+        film.addLike(userId);
+    }
+
+    public void deleteLike(int id, int userId) {
+        Film film = getFilmById(id);
+        film.deleteLike(userId);
+    }
+
+    @Override
+    public List<Film> getMostPopular(int size) {
+        return getAll().stream()
+                .sorted(Comparator.comparingInt(Film::getLikesNumber).reversed())
+                .limit(size)
+                .collect(Collectors.toList());
     }
 }
