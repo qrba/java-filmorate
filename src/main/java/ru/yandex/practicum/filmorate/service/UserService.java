@@ -9,8 +9,6 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
 
-import static ru.yandex.practicum.filmorate.service.validators.UserValidator.validate;
-
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -28,12 +26,10 @@ public class UserService {
     }
 
     public User add(User user) {
-        validate(user);
         return storage.add(user);
     }
 
     public User update(User user) {
-        validate(user);
         return storage.update(user);
     }
 

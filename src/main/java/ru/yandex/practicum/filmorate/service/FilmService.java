@@ -11,8 +11,6 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
 
-import static ru.yandex.practicum.filmorate.service.validators.FilmValidator.validate;
-
 @Service
 @RequiredArgsConstructor
 public class FilmService {
@@ -33,12 +31,10 @@ public class FilmService {
     }
 
     public Film add(Film film) {
-        validate(film);
         return genreStorage.addFilmGenres(storage.add(film));
     }
 
     public Film update(Film film) {
-        validate(film);
         genreStorage.deleteFilmGenres(film.getId());
         return genreStorage.addFilmGenres(storage.update(film));
     }

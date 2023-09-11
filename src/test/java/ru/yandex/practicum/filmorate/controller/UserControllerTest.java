@@ -17,7 +17,6 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @AutoConfigureTestDatabase
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -251,8 +250,6 @@ public class UserControllerTest {
         assertEquals(HttpStatus.OK, voidResponse.getStatusCode());
         assertNotNull(user1);
         assertNotNull(user2);
-        assertTrue(user1.getFriends().isEmpty());
-        assertTrue(user2.getFriends().isEmpty());
     }
 
     @Test
