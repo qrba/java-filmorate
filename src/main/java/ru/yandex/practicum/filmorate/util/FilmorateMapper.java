@@ -72,9 +72,9 @@ public class FilmorateMapper {
                 rs.getString("content"),
                 rs.getBoolean("is_positive"),
                 rs.getInt("user_id"),
-                rs.getInt("film_id"),
-                rs.getInt("useful")
+                rs.getInt("film_id")
         );
+        review.setUseful(rs.getInt("useful"));
         review.setReviewId(rs.getInt("id"));
         return review;
     }

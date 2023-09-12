@@ -17,5 +17,5 @@ public class Review {
     private final Integer userId;
     @NotNull
     private final Integer filmId;
-    private final int useful;
+    private int useful;
 }
