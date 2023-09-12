@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.util;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.RatingMPA;
+import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.ResultSet;
@@ -55,5 +56,26 @@ public class FilmorateMapper {
 
     public static Genre genreFromRow(ResultSet rs, int rowNum)throws SQLException {
         return new Genre(rs.getInt("id"), rs.getString("name"));
+    }
+
+    public static Map<String, Object> reviewToRow(Review review) {
+        Map<String, Object> values = new HashMap<>();
+        values.put("content", review.getContent());
+        values.put("is_positive", review.getIsPositive());
+        values.put("user_id", review.getUserId());
+        values.put("film_id", review.getFilmId());
+        return values;
+    }
+
+    public static Review reviewFromRow(ResultSet rs, int rowNum) throws SQLException {
+        Review review = new Review(
+                rs.getString("content"),
+                rs.getBoolean("is_positive"),
+                rs.getInt("user_id"),
+                rs.getInt("film_id"),
+                rs.getInt("useful")
+        );
+        review.setReviewId(rs.getInt("id"));
+        return review;
     }
 }
