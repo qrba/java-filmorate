@@ -17,6 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReviewDbStorage implements ReviewStorage {
     private final JdbcTemplate jdbcTemplate;
+
     @Override
     public Review add(Review review) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
