@@ -62,4 +62,8 @@ public class FilmService {
         film.setGenres(genreStorage.getFilmGenres(film.getId()));
         return film;
     }
+
+    public void delete(int id) {
+        storage.delete(id);
+    }
 }

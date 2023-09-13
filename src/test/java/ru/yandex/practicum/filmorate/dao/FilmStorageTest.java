@@ -121,4 +121,21 @@ public class FilmStorageTest {
         assertEquals(film2, mostPopular.get(0));
         assertEquals(film1, mostPopular.get(1));
     }
+
+    @Test
+    void shouldDeleteFilm() {
+        FilmNotFoundException e = Assertions.assertThrows(
+                FilmNotFoundException.class,
+                () -> {
+                    Film film = new Film("Film", "Film is a test entity",
+                            LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
+                    storage.add(film);
+                    int id = film.getId();
+                    storage.delete(id);
+                    storage.getFilmById(id);
+                }
+        );
+
+        assertEquals("Фильм с id=1 не найден.", e.getMessage());
+    }
 }

@@ -60,4 +60,10 @@ public class UserDbStorage implements UserStorage {
             throw new UserNotFoundException("Пользователь с id=" + id + " не найден.");
         }
     }
+
+    @Override
+    public void delete(int id) {
+        jdbcTemplate.update("delete from users where id = ?", id);
+        log.info("Удален пользователь с id={}.", id);
+    }
 }

@@ -74,4 +74,10 @@ public class FilmDbStorage implements FilmStorage {
                 "order by count (film_likes.user_id) desc, film_likes.film_id limit ?";
         return jdbcTemplate.query(sqlQuery, FilmorateMapper::filmFromRow, size);
     }
+
+    @Override
+    public void delete(int id) {
+        jdbcTemplate.update("delete from films where id = ?", id);
+        log.info("Удален фильм с id={}.", id);
+    }
 }
