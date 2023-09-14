@@ -8,4 +8,6 @@ public interface LikeStorage {
     void deleteLike(int filmId, int userId);
 
     List<Integer> getLikes(int filmId);
+
+    List<Integer> getListsOfFavoriteFilms(int userId);
 }

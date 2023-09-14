@@ -2,12 +2,16 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import ru.yandex.practicum.filmorate.util.FilmorateMapper;
 
 import java.util.List;
@@ -17,6 +21,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
+    private final LikeStorage likeStorage;
+    @Qualifier("databaseUser")
+    private final UserStorage userStorage;
+    private final GenreStorage genreStorage;
 
     @Override
     public List<Film> getAll() {

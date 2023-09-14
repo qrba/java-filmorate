@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.RatingMPA;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -120,5 +121,55 @@ public class FilmStorageTest {
 
         assertEquals(film2, mostPopular.get(0));
         assertEquals(film1, mostPopular.get(1));
+    }
+
+    @Test
+    void shouldGetFilmsRecommendations(@Autowired LikeStorage likeStorage,  @Autowired FilmService filmService) {
+        Film film1 = new Film("Film 1", "Film 1 is a test entity",
+                LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
+        storage.add(film1);
+        Film film2 = new Film("Film 2", "Film 2 is a test entity",
+                LocalDate.parse("1995-10-20"), 190, new RatingMPA(5, "NC-17"));
+        storage.add(film2);
+        Film film3 = new Film("Film 3", "Film 3 is a test entity",
+                LocalDate.parse("1999-10-20"), 150, new RatingMPA(5, "NC-17"));
+        storage.add(film3);
+        User user1 = new User(1, "test1@email.com", "testLogin 1",
+                "testUsername1", LocalDate.parse("2000-05-25"));
+        userStorage.add(user1);
+        User user2 = new User(2, "test2@email.com", "testLogin 2",
+                "testUsername2", LocalDate.parse("2005-05-25"));
+        userStorage.add(user2);
+        likeStorage.addLike(film2.getId(), user1.getId());
+        likeStorage.addLike(film1.getId(), user1.getId());
+        likeStorage.addLike(film1.getId(), user2.getId());
+        List<Film> favoriteFilms = filmService.getFilmsRecommendations(user2.getId());
+
+        assertEquals(1, favoriteFilms.size());
+        assertEquals(film2, favoriteFilms.get(0));
+    }
+
+    @Test
+    void shouldGetFilmsRecommendationsEmptyList(@Autowired LikeStorage likeStorage, @Autowired FilmService filmService) {
+        Film film1 = new Film("Film 1", "Film 1 is a test entity",
+                LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
+        storage.add(film1);
+        Film film2 = new Film("Film 2", "Film 2 is a test entity",
+                LocalDate.parse("1995-10-20"), 190, new RatingMPA(5, "NC-17"));
+        storage.add(film2);
+        Film film3 = new Film("Film 3", "Film 3 is a test entity",
+                LocalDate.parse("1999-10-20"), 150, new RatingMPA(5, "NC-17"));
+        storage.add(film3);
+        User user1 = new User(1, "test1@email.com", "testLogin 1",
+                "testUsername1", LocalDate.parse("2000-05-25"));
+        userStorage.add(user1);
+        User user2 = new User(2, "test2@email.com", "testLogin 2",
+                "testUsername2", LocalDate.parse("2005-05-25"));
+        userStorage.add(user2);
+        likeStorage.addLike(film1.getId(), user1.getId());
+        likeStorage.addLike(film1.getId(), user2.getId());
+        List<Film> favoriteFilms = filmService.getFilmsRecommendations(user2.getId());
+
+        assertEquals(0, favoriteFilms.size());
     }
 }
