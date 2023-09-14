@@ -124,7 +124,7 @@ public class FilmStorageTest {
     }
 
     @Test
-    void shouldGetFilmsRecommendations(@Autowired LikeStorage likeStorage,  @Autowired FilmService filmService) {
+    void shouldGetFilmsRecommendations(@Autowired FilmService filmService) {
         Film film1 = new Film("Film 1", "Film 1 is a test entity",
                 LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
         storage.add(film1);
@@ -140,9 +140,9 @@ public class FilmStorageTest {
         User user2 = new User(2, "test2@email.com", "testLogin 2",
                 "testUsername2", LocalDate.parse("2005-05-25"));
         userStorage.add(user2);
-        likeStorage.addLike(film2.getId(), user1.getId());
-        likeStorage.addLike(film1.getId(), user1.getId());
-        likeStorage.addLike(film1.getId(), user2.getId());
+        filmService.getLikeStorage().addLike(film2.getId(), user1.getId());
+        filmService.getLikeStorage().addLike(film1.getId(), user1.getId());
+        filmService.getLikeStorage().addLike(film1.getId(), user2.getId());
         List<Film> favoriteFilms = filmService.getFilmsRecommendations(user2.getId());
 
         assertEquals(1, favoriteFilms.size());
@@ -150,7 +150,7 @@ public class FilmStorageTest {
     }
 
     @Test
-    void shouldGetFilmsRecommendationsEmptyList(@Autowired LikeStorage likeStorage, @Autowired FilmService filmService) {
+    void shouldGetFilmsRecommendationsEmptyList(@Autowired FilmService filmService) {
         Film film1 = new Film("Film 1", "Film 1 is a test entity",
                 LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
         storage.add(film1);
@@ -166,8 +166,8 @@ public class FilmStorageTest {
         User user2 = new User(2, "test2@email.com", "testLogin 2",
                 "testUsername2", LocalDate.parse("2005-05-25"));
         userStorage.add(user2);
-        likeStorage.addLike(film1.getId(), user1.getId());
-        likeStorage.addLike(film1.getId(), user2.getId());
+        filmService.getLikeStorage().addLike(film1.getId(), user1.getId());
+        filmService.getLikeStorage().addLike(film1.getId(), user2.getId());
         List<Film> favoriteFilms = filmService.getFilmsRecommendations(user2.getId());
 
         assertEquals(0, favoriteFilms.size());

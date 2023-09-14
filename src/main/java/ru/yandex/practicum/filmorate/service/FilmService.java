@@ -100,4 +100,8 @@ public class FilmService {
         recommendations.forEach(film -> film.setGenres(genreStorage.getFilmGenres(film.getId())));
         return recommendations;
     }
+
+    public LikeStorage getLikeStorage() {
+        return likeStorage;
+    }
 }
