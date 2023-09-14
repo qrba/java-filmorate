@@ -64,6 +64,7 @@ public class UserController {
     public List<User> getCommonFriends(@PathVariable int id, @PathVariable int otherId) {
         return service.getCommonFriends(id, otherId);
     }
+
     @GetMapping("/{id}/recommendations")
     public List<Film> getFilmsRecommendations(@PathVariable int id) {
         return filmService.getFilmsRecommendations(id);
