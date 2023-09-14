@@ -2,7 +2,10 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.friend.FriendStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -54,5 +57,14 @@ public class UserService {
         getUserById(id);
         getUserById(otherId);
         return friendStorage.getCommonFriends(id, otherId);
+    }
+
+    public List<Feed> getUserFeed(Integer userId) {
+        try {
+            getUserById(userId);
+            return storage.getUserFeed(userId);
+        } catch (EmptyResultDataAccessException e) {
+            throw new UserNotFoundException("Пользователь с id=" + userId + " не найден.");
+        }
     }
 }

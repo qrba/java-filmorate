@@ -7,9 +7,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.util.FilmorateMapper;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
 @Slf4j
@@ -59,5 +62,22 @@ public class UserDbStorage implements UserStorage {
         } catch (EmptyResultDataAccessException e) {
             throw new UserNotFoundException("Пользователь с id=" + id + " не найден.");
         }
+    }
+
+    private Feed createFeed(ResultSet rs, int rowNum) throws SQLException {
+        return Feed.builder()
+                .userId(rs.getInt("user_id"))
+                .eventType(rs.getString("event_type"))
+                .operation(rs.getString("operation"))
+                .eventId(rs.getInt("id"))
+                .entityId(rs.getInt("entity_id"))
+                .timestamp(rs.getTimestamp("timestamp"))
+                .build();
+    }
+
+    @Override
+    public List<Feed> getUserFeed(Integer userId) {
+        String sqlQuery = "SELECT * FROM events WHERE user_id = ?";
+        return jdbcTemplate.query(sqlQuery, this::createFeed, userId);
     }
 }

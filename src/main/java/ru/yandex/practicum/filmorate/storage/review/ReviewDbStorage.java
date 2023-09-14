@@ -10,6 +10,8 @@ import ru.yandex.practicum.filmorate.exceptions.ReviewNotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.util.FilmorateMapper;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 
 @Slf4j
@@ -25,6 +27,7 @@ public class ReviewDbStorage implements ReviewStorage {
                 .usingGeneratedKeyColumns("id");
         review.setReviewId(simpleJdbcInsert.executeAndReturnKey(FilmorateMapper.reviewToRow(review)).intValue());
         log.info("Добавлен новый отзыв {}.", review);
+        addEventAddReview(review.getUserId(), review.getReviewId());
         return review;
     }
 
@@ -39,6 +42,7 @@ public class ReviewDbStorage implements ReviewStorage {
         );
         if (rowsUpdated == 1) {
             log.info("Обновлен отзыв {}.", review);
+            addEventReviewUpdate(review.getReviewId());
             return getReviewById(id);
         } else {
             throw new ReviewNotFoundException("Отзыв с id=" + id + " не найден.");
@@ -47,9 +51,12 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public void delete(int id) {
+        Review review = getReviewById(id);
+        addEventDeleteReview(review.getUserId(), id);
         String sqlQuery = "delete from reviews where id = ?";
         jdbcTemplate.update(sqlQuery, id);
         log.info("Удален отзыв с id={}.", id);
+
     }
 
     @Override
@@ -73,5 +80,24 @@ public class ReviewDbStorage implements ReviewStorage {
                 "from reviews as r left join review_likes as rl on r.id = rl.review_id "
                 + where + " group by r.id order by useful desc limit ?";
         return jdbcTemplate.query(sqlQuery, FilmorateMapper::reviewFromRow, count);
+    }
+
+    private void addEventDeleteReview(Integer userId, Integer reviewId) {
+        String sql = "INSERT INTO events (user_id, timestamp, event_type, operation, entity_id) " +
+                "VALUES (?,?, 'REVIEW', 'REMOVE', ?)";
+        jdbcTemplate.update(sql, userId, Date.from(Instant.now()), reviewId);
+    }
+
+    private void addEventAddReview(Integer userId, Integer reviewId) {
+        String sql = "INSERT INTO events (user_id, timestamp, event_type, operation, entity_id) " +
+                " VALUES (?,?, 'REVIEW', 'ADD', ?)";
+        jdbcTemplate.update(sql, userId, Date.from(Instant.now()), reviewId);
+    }
+
+    private void addEventReviewUpdate(Integer reviewId) {
+        String sql = "INSERT INTO events (user_id, timestamp, event_type, operation, entity_id) " +
+                " VALUES (?, ?, 'REVIEW', 'UPDATE', ?)";
+        Review review = getReviewById(reviewId);
+        jdbcTemplate.update(sql, review.getUserId(), Date.from(Instant.now()), reviewId);
     }
 }
