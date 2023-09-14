@@ -18,6 +18,7 @@ import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -130,6 +131,7 @@ public class FilmStorageTest {
         storage.add(film1);
         Film film2 = new Film("Film 2", "Film 2 is a test entity",
                 LocalDate.parse("1995-10-20"), 190, new RatingMPA(5, "NC-17"));
+        film2.setGenres(new ArrayList<>());
         storage.add(film2);
         Film film3 = new Film("Film 3", "Film 3 is a test entity",
                 LocalDate.parse("1999-10-20"), 150, new RatingMPA(5, "NC-17"));
@@ -143,10 +145,9 @@ public class FilmStorageTest {
         filmService.getLikeStorage().addLike(film2.getId(), user1.getId());
         filmService.getLikeStorage().addLike(film1.getId(), user1.getId());
         filmService.getLikeStorage().addLike(film1.getId(), user2.getId());
-        List<Film> favoriteFilms = filmService.getFilmsRecommendations(user2.getId());
-
-        assertEquals(1, favoriteFilms.size());
-        assertEquals(film2, favoriteFilms.get(0));
+        List<Film> recommendations = filmService.getFilmsRecommendations(user2.getId());
+        assertEquals(1, recommendations.size());
+        assertEquals(film2, recommendations.get(0));
     }
 
     @Test
@@ -168,8 +169,8 @@ public class FilmStorageTest {
         userStorage.add(user2);
         filmService.getLikeStorage().addLike(film1.getId(), user1.getId());
         filmService.getLikeStorage().addLike(film1.getId(), user2.getId());
-        List<Film> favoriteFilms = filmService.getFilmsRecommendations(user2.getId());
+        List<Film> recommendations = filmService.getFilmsRecommendations(user2.getId());
 
-        assertEquals(0, favoriteFilms.size());
+        assertEquals(0, recommendations.size());
     }
 }
