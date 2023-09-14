@@ -123,25 +123,4 @@ public class ReviewStorageTest {
         assertEquals(1, reviews.size());
         assertEquals(review, reviews.get(0));
     }
-
-    @Test
-    void shouldAddLike() {
-        Review review = new Review("Review", true, 1, 1);
-        reviewStorage.add(review);
-        reviewStorage.addLike(review.getReviewId(), 1, true);
-        review = reviewStorage.getReviewById(1);
-
-        assertEquals(1, review.getUseful());
-    }
-
-    @Test
-    void shouldDeleteLike() {
-        Review review = new Review("Review", true, 1, 1);
-        reviewStorage.add(review);
-        reviewStorage.addLike(review.getReviewId(), 1, true);
-        reviewStorage.deleteLike(1, 1, true);
-        review = reviewStorage.getReviewById(1);
-
-        assertEquals(0, review.getUseful());
-    }
 }

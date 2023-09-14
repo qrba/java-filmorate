@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
+import ru.yandex.practicum.filmorate.storage.reviewlikes.ReviewLikesStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ReviewService {
     private final ReviewStorage reviewStorage;
+    private final ReviewLikesStorage reviewLikesStorage;
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
 
@@ -41,21 +43,21 @@ public class ReviewService {
 
     public void addLike(int reviewId, int userId) {
         userStorage.getUserById(userId);
-        reviewStorage.addLike(reviewId, userId, true);
+        reviewLikesStorage.addLike(reviewId, userId, true);
     }
 
     public void addDislike(int reviewId, int userId) {
         userStorage.getUserById(userId);
-        reviewStorage.addLike(reviewId, userId, false);
+        reviewLikesStorage.addLike(reviewId, userId, false);
     }
 
     public void deleteLike(int reviewId, int userId) {
         userStorage.getUserById(userId);
-        reviewStorage.deleteLike(reviewId, userId, true);
+        reviewLikesStorage.deleteLike(reviewId, userId, true);
     }
 
     public void deleteDislike(int reviewId, int userId) {
         userStorage.getUserById(userId);
-        reviewStorage.deleteLike(reviewId, userId, false);
+        reviewLikesStorage.deleteLike(reviewId, userId, false);
     }
 }
