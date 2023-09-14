@@ -5,8 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.InvalidDataEnteredException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.util.FilmorateMapper;
 
@@ -73,5 +75,66 @@ public class FilmDbStorage implements FilmStorage {
                 "= mpa_rating.id left join film_likes on f.id = film_likes.film_id group by film_likes.film_id, f.id " +
                 "order by count (film_likes.user_id) desc, film_likes.film_id limit ?";
         return jdbcTemplate.query(sqlQuery, FilmorateMapper::filmFromRow, size);
+    }
+
+    /*
+        Поиск по названию фильма или по режиссеру
+     */
+    @Override
+    public List<Film> search(String textForSearch, String searchParameter) {
+        String[] splitSearchParameter = searchParameter.split(",");
+        validateText(splitSearchParameter);
+        if (splitSearchParameter.length == 2) {
+            String sqlQuery =
+                    "SELECT COUNT (fl.film_id) AS rate, f.*, d.name " +
+                    "FROM films AS f " +
+                    "LEFT JOIN film_likes AS fl ON fl.film_id=f.id " +
+                    "LEFT JOIN director_films AS df ON df.film_id=f.id " +
+                    "LEFT JOIN directors AS d ON d.id=df.director_id " +
+                    "WHERE d.name LIKE %?% OR f.name LIKE %?% " +
+                    "GROUP BY f.id " +
+                    "ORDER BY rate DESC";
+            return jdbcTemplate.query(sqlQuery, FilmorateMapper::filmFromRow, textForSearch, textForSearch);
+        } else {
+            String sqlQuery = getSqlQuery(searchParameter);
+            return jdbcTemplate.query(sqlQuery, FilmorateMapper::filmFromRow, textForSearch);
+        }
+    }
+
+    /*
+        Определение параметра для фильтрации
+     */
+    private String getSqlQuery(String searchParameter) {
+        String condition;
+        if (searchParameter.equals("director")) {
+            condition = "WHERE d.name LIKE %?% ";
+        } else {
+            condition = "WHERE f.name LIKE %?% ";
+        }
+        String sqlQuery = "SELECT COUNT (fl.film_id) AS rate, f.*, d.name " +
+                "FROM films AS f " +
+                "LEFT JOIN film_likes AS fl ON fl.film_id=f.id " +
+                "LEFT JOIN director_films AS df ON df.film_id=f.id " +
+                "LEFT JOIN directors AS d ON d.id=df.director_id " +
+                condition +
+                "GROUP BY f.id " +
+                "ORDER BY rate DESC";
+        return sqlQuery;
+    }
+
+    /*
+        Проверка введенных аргументов для поиска
+     */
+    private void validateText(String[] text) {
+        if (text.length > 3 || text.length == 0) {
+            throw new InvalidDataEnteredException("В запросе введено не корректное количество аргументов");
+        }
+        if (text[0].equals(text[1])) {
+            throw new InvalidDataEnteredException("В запросе одинаковые аргументы");
+        }
+        if (!((text[0].equals("director") || text[0].equals("title"))
+                && (text[1].equals("director") || text[1].equals("title")))) {
+            throw new InvalidDataEnteredException("В запросе написаны неверные параметры поиска");
+        }
     }
 }

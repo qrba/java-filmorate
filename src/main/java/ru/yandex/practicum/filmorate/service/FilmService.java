@@ -62,4 +62,8 @@ public class FilmService {
         film.setGenres(genreStorage.getFilmGenres(film.getId()));
         return film;
     }
+
+    public List<Film> searchFilms(String name, String by) {
+        return storage.search(name, by);
+    }
 }
