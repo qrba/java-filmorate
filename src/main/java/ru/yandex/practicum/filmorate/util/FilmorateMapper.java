@@ -53,7 +53,7 @@ public class FilmorateMapper {
         );
     }
 
-    public static Genre genreFromRow(ResultSet rs, int rowNum)throws SQLException {
+    public static Genre genreFromRow(ResultSet rs, int rowNum) throws SQLException {
         return new Genre(rs.getInt("id"), rs.getString("name"));
     }
 }

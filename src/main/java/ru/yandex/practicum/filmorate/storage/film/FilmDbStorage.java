@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.InvalidDataEnteredException;
@@ -87,13 +86,13 @@ public class FilmDbStorage implements FilmStorage {
         if (splitSearchParameter.length == 2) {
             String sqlQuery =
                     "SELECT COUNT (fl.film_id) AS rate, f.*, d.name " +
-                    "FROM films AS f " +
-                    "LEFT JOIN film_likes AS fl ON fl.film_id=f.id " +
-                    "LEFT JOIN director_films AS df ON df.film_id=f.id " +
-                    "LEFT JOIN directors AS d ON d.id=df.director_id " +
-                    "WHERE d.name LIKE %?% OR f.name LIKE %?% " +
-                    "GROUP BY f.id " +
-                    "ORDER BY rate DESC";
+                            "FROM films AS f " +
+                            "LEFT JOIN film_likes AS fl ON fl.film_id=f.id " +
+                            "LEFT JOIN director_films AS df ON df.film_id=f.id " +
+                            "LEFT JOIN directors AS d ON d.id=df.director_id " +
+                            "WHERE d.name LIKE %?% OR f.name LIKE %?% " +
+                            "GROUP BY f.id " +
+                            "ORDER BY rate DESC";
             return jdbcTemplate.query(sqlQuery, FilmorateMapper::filmFromRow, textForSearch, textForSearch);
         } else {
             String sqlQuery = getSqlQuery(searchParameter);
