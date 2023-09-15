@@ -62,6 +62,7 @@ public class UserController {
     public List<User> getCommonFriends(@PathVariable int id, @PathVariable int otherId) {
         return service.getCommonFriends(id, otherId);
     }
+
     @GetMapping("/{id}/feed")
     public List<Feed> getUserFeedById(@PathVariable int id) {
         return service.getUserFeed(id);
