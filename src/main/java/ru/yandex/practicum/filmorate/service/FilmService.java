@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
@@ -24,9 +25,12 @@ public class FilmService {
 
     private final GenreStorage genreStorage;
 
+    private final DirectorStorage directorStorage;
+
     public List<Film> getFilms() {
         List<Film> films = storage.getAll();
         films.forEach(film -> film.setGenres(genreStorage.getFilmGenres(film.getId())));
+        films.forEach(film -> film.setDirector(directorStorage.getFilmDirectors(film.getId())));
         return films;
     }
 
@@ -54,12 +58,22 @@ public class FilmService {
     public List<Film> getMostPopular(int size) {
         List<Film> films = storage.getMostPopular(size);
         films.forEach(film -> film.setGenres(genreStorage.getFilmGenres(film.getId())));
+        films.forEach(film -> film.setDirector(directorStorage.getFilmDirectors(film.getId())));
         return films;
     }
 
     public Film getFilmById(int id) {
         Film film = storage.getFilmById(id);
         film.setGenres(genreStorage.getFilmGenres(film.getId()));
+        film.setDirector(directorStorage.getFilmDirectors(film.getId()));
         return film;
+    }
+
+    public List<Film> getDirectorsFilms(int directorId, String sortBy) {
+        directorStorage.getDirectorById(directorId);
+        List<Film> films = storage.getDirectorsFilms(directorId, sortBy);
+        films.forEach(film -> film.setGenres(genreStorage.getFilmGenres(film.getId())));
+        films.forEach(film -> film.setDirector(directorStorage.getFilmDirectors(film.getId())));
+        return films;
     }
 }

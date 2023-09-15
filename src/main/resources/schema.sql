@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS directors (
 
 CREATE TABLE IF NOT EXISTS director_films (
   director_id int REFERENCES directors (id),
-  film_id int REFERENCES films (id)
+  film_id int REFERENCES films (id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS events (
