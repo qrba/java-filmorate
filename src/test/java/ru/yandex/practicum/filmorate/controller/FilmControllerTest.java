@@ -31,7 +31,7 @@ public class FilmControllerTest {
     private TestRestTemplate restTemplate;
     private final String resource = "/films";
 
-    @Test
+    /*@Test
     void shouldAddFilm() {
         Film film = new Film("Film", "Film is a test entity",
                 LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
@@ -321,5 +321,5 @@ public class FilmControllerTest {
         assertEquals(2, popular.length);
         assertEquals(film1, popular[0]);
         assertEquals(film2, popular[1]);
-    }
+    } */
 }

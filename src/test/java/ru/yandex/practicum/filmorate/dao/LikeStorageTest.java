@@ -30,14 +30,19 @@ public class LikeStorageTest {
     @Test
     void shouldAddDeleteGetLikes(@Qualifier("databaseUser") UserStorage userStorage,
             @Qualifier("databaseFilm") FilmStorage filmStorage) {
-        Film film = new Film("Film", "Film is a test entity",
-                LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
-        filmStorage.add(film);
+        Film film = Film.builder()
+                .name("Film")
+                .description("Film is a test entity")
+                .releaseDate(LocalDate.parse("1985-10-20"))
+                .duration(90)
+                .mpa(new RatingMPA(1, "G"))
+                .build();
+        Film addedFilm = filmStorage.add(film);
         User user = new User(1, "test@email.com", "testLogin",
                 "testName", LocalDate.parse("2000-05-25"));
         userStorage.add(user);
-        storage.addLike(film.getId(), user.getId());
-        List<Integer> likes = storage.getLikes(film.getId());
+        storage.addLike(addedFilm.getId(), user.getId());
+        List<Integer> likes = storage.getLikes(addedFilm.getId());
 
         assertEquals(List.of(user.getId()), likes);
 
