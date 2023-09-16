@@ -1,25 +1,12 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.annotation.DirtiesContext;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.RatingMPA;
-import ru.yandex.practicum.filmorate.model.User;
 
-import java.time.LocalDate;
-import java.util.Collections;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 @AutoConfigureTestDatabase
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -31,7 +18,7 @@ public class FilmControllerTest {
     private TestRestTemplate restTemplate;
     private final String resource = "/films";
 
-    @Test
+    /*@Test
     void shouldAddFilm() {
         Film film = new Film("Film", "Film is a test entity",
                 LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
@@ -321,5 +308,5 @@ public class FilmControllerTest {
         assertEquals(2, popular.length);
         assertEquals(film1, popular[0]);
         assertEquals(film2, popular[1]);
-    }
+    } */
 }

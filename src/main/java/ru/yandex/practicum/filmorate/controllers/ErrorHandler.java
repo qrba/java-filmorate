@@ -24,7 +24,8 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler({UserNotFoundException.class, FilmNotFoundException.class,
-            RatingMPANotFoundException.class, GenreNotFoundException.class})
+                    RatingMPANotFoundException.class, GenreNotFoundException.class,
+                    DirectorNotFoundException.class})
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleNotFoundExceptions(final RuntimeException e) {
         String message = e.getMessage();
