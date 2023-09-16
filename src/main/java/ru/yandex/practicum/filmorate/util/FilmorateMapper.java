@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.util;
 
-import ru.yandex.practicum.filmorate.model.*;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,8 +30,9 @@ public class FilmorateMapper {
         );
     }
 
-
     public static Genre genreFromRow(ResultSet rs, int rowNum) throws SQLException {
-        return new Genre(rs.getInt("id"), rs.getString("name"));
+        return Genre.builder().id(rs.getInt("id"))
+                .name(rs.getString("name"))
+                .build();
     }
 }

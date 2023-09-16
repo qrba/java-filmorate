@@ -137,18 +137,22 @@ public class FilmDbStorage implements FilmStorage {
         validateText(splitSearchParameter);
         if (splitSearchParameter.length == 2) {
             String sqlQuery =
-                    "SELECT COUNT (fl.film_id) AS rate, f.*, d.name " +
+                    "SELECT COUNT (fl.film_id) AS rate, f.*, d.name, mr.name AS mpa_name, g.*, d.* " +
                             "FROM films AS f " +
                             "LEFT JOIN film_likes AS fl ON fl.film_id=f.id " +
                             "LEFT JOIN director_films AS df ON df.film_id=f.id " +
                             "LEFT JOIN directors AS d ON d.id=df.director_id " +
-                            "WHERE d.name LIKE %?% OR f.name LIKE %?% " +
-                            "GROUP BY f.id " +
+                            "LEFT JOIN mpa_rating AS mr ON mr.id=f.mpa_id " +
+                            "LEFT JOIN film_genres AS fg ON fg.film_id=f.id " +
+                            "LEFT JOIN genres AS g ON fg.genre_id=g.id " +
+                            "WHERE d.name ILIKE ? OR f.name ILIKE ? " +
+                            "GROUP BY f.id, d.name, mr.id, g.id, d.id " +
                             "ORDER BY rate DESC";
-            return jdbcTemplate.query(sqlQuery, FilmorateMapper::filmFromRow, textForSearch, textForSearch);
+
+            return jdbcTemplate.query(sqlQuery, this::filmFromRow, "%" + textForSearch + "%", "%" + textForSearch + "%");
         } else {
             String sqlQuery = getSqlQuery(searchParameter);
-            return jdbcTemplate.query(sqlQuery, FilmorateMapper::filmFromRow, textForSearch);
+            return jdbcTemplate.query(sqlQuery, this::filmFromRow, "%" + textForSearch + "%");
         }
     }
 
@@ -158,17 +162,20 @@ public class FilmDbStorage implements FilmStorage {
     private String getSqlQuery(String searchParameter) {
         String condition;
         if (searchParameter.equals("director")) {
-            condition = "WHERE d.name LIKE %?% ";
+            condition = "WHERE d.name ILIKE ? ";
         } else {
-            condition = "WHERE f.name LIKE %?% ";
+            condition = "WHERE f.name ILIKE ? ";
         }
-        String sqlQuery = "SELECT COUNT (fl.film_id) AS rate, f.*, d.name " +
+        String sqlQuery = "SELECT COUNT (fl.film_id) AS rate, f.*, d.name, mr.name AS mpa_name, g.*, d.* " +
                 "FROM films AS f " +
                 "LEFT JOIN film_likes AS fl ON fl.film_id=f.id " +
                 "LEFT JOIN director_films AS df ON df.film_id=f.id " +
                 "LEFT JOIN directors AS d ON d.id=df.director_id " +
+                "LEFT JOIN mpa_rating AS mr ON mr.id=f.mpa_id " +
+                "LEFT JOIN film_genres AS fg ON fg.film_id=f.id " +
+                "LEFT JOIN genres AS g ON fg.genre_id=g.id " +
                 condition +
-                "GROUP BY f.id " +
+                "GROUP BY f.id, d.name, mr.id, g.id, d.id " +
                 "ORDER BY rate DESC";
         return sqlQuery;
     }
@@ -180,11 +187,16 @@ public class FilmDbStorage implements FilmStorage {
         if (text.length > 3 || text.length == 0) {
             throw new InvalidDataEnteredException("В запросе введено не корректное количество аргументов");
         }
+        if (!(text[0].equals("director") || text[0].equals("title"))) {
+            throw new InvalidDataEnteredException("В запросе написаны неверные параметры поиска");
+        }
+        if (text.length == 1) {
+            return;
+        }
         if (text[0].equals(text[1])) {
             throw new InvalidDataEnteredException("В запросе одинаковые аргументы");
         }
-        if (!((text[0].equals("director") || text[0].equals("title"))
-                && (text[1].equals("director") || text[1].equals("title")))) {
+        if (!(text[1].equals("director") || text[1].equals("title"))) {
             throw new InvalidDataEnteredException("В запросе написаны неверные параметры поиска");
         }
     }
