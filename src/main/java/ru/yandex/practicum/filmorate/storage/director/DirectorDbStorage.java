@@ -7,12 +7,14 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.DirectorNotFoundException;
-import ru.yandex.practicum.filmorate.model.Director;
+import ru.yandex.practicum.filmorate.model.Directors;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.util.FilmorateMapper;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -21,21 +23,21 @@ public class DirectorDbStorage implements DirectorStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public List<Director> getAll() {
+    public List<Directors> getAll() {
         String sqlQuery = "select * from directors";
         return jdbcTemplate.query(
                 sqlQuery,
-                FilmorateMapper::directorFromRow
+                this::directorFromRow
         );
     }
 
     @Override
-    public Director getDirectorById(int id) {
+    public Directors getDirectorById(int id) {
         try {
             String sqlQuery = "select * from directors where id = ?";
             return jdbcTemplate.queryForObject(
                     sqlQuery,
-                    FilmorateMapper::directorFromRow,
+                    this::directorFromRow,
                     id
             );
         } catch (EmptyResultDataAccessException e) {
@@ -44,28 +46,28 @@ public class DirectorDbStorage implements DirectorStorage {
     }
 
     @Override
-    public Director addDirector(Director director) {
+    public Directors addDirector(Directors directors) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("directors")
                 .usingGeneratedKeyColumns("id");
-        int id = simpleJdbcInsert.executeAndReturnKey(FilmorateMapper.directorToRow(director)).intValue();
+        int id = simpleJdbcInsert.executeAndReturnKey(directorToRow(directors)).intValue();
         log.info("Добавлен новый режиссер {}.", getDirectorById(id));
         return getDirectorById(id);
     }
 
     @Override
-    public Director updateDirector(Director director) {
+    public Directors updateDirector(Directors directors) {
         String sqlQuery = "update directors set id = ?, name = ?";
         try {
-            getDirectorById(director.getId());
+            getDirectorById(directors.getId());
         } catch (DirectorNotFoundException e) {
-            log.debug("Обновление режиссера c неверным id: {}", director.getId());
-            throw new DirectorNotFoundException("Режиссер с id " + director.getId() + " не существует");
+            log.debug("Обновление режиссера c неверным id: {}", directors.getId());
+            throw new DirectorNotFoundException("Режиссер с id " + directors.getId() + " не существует");
         }
         jdbcTemplate.update(sqlQuery,
-                director.getId(),
-                director.getName());
-        return getDirectorById(director.getId());
+                directors.getId(),
+                directors.getName());
+        return getDirectorById(directors.getId());
     }
 
     @Override
@@ -81,26 +83,40 @@ public class DirectorDbStorage implements DirectorStorage {
     }
 
     @Override
-    public List<Director> getFilmDirectors(int filmId) {
+    public List<Directors> getFilmDirectors(int filmId) {
         return jdbcTemplate.query(
                 "select d.* from directors as d join director_films as df on d.id = df.director_id " +
                         "where df.film_id = ?",
-                FilmorateMapper::directorFromRow,
+                this::directorFromRow,
                 filmId
         );
     }
 
     @Override
-    public void addFilmDirectors(Film film) {
+    public void addFilmDirectors(Film film, int filmId) {
         if (!getFilmDirectors(film.getId()).isEmpty()) {
             String sqlQuery = "delete from director_films where film_id = ?";
-            jdbcTemplate.update(sqlQuery, film.getId());
+            jdbcTemplate.update(sqlQuery, filmId);
         }
-        if (film.getDirector() == null) {
+        if (film.getDirectors() == null) {
             return;
         }
         String sqlQuery = "insert into director_films(film_id, director_id) " +
                 "values (?, ?)";
-        film.getDirector().forEach(director -> jdbcTemplate.update(sqlQuery, film.getId(), director.getId()));
+        film.getDirectors().forEach(director -> jdbcTemplate.update(sqlQuery, filmId, director.getId()));
+    }
+
+    private Map<String, Object> directorToRow(Directors directors) {
+        Map<String, Object> values = new HashMap<>();
+        values.put("id", directors.getId());
+        values.put("name", directors.getName());
+        return values;
+    }
+
+    private Directors directorFromRow(ResultSet rs, int rowNum) throws SQLException {
+        return new Directors(
+                rs.getInt("id"),
+                rs.getString("name")
+        );
     }
 }

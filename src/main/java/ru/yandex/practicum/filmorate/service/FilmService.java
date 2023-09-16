@@ -23,24 +23,18 @@ public class FilmService {
 
     private final LikeStorage likeStorage;
 
-    private final GenreStorage genreStorage;
-
     private final DirectorStorage directorStorage;
 
     public List<Film> getFilms() {
-        List<Film> films = storage.getAll();
-        films.forEach(film -> film.setGenres(genreStorage.getFilmGenres(film.getId())));
-        films.forEach(film -> film.setDirector(directorStorage.getFilmDirectors(film.getId())));
-        return films;
+        return storage.getAll();
     }
 
     public Film add(Film film) {
-        return genreStorage.addFilmGenres(storage.add(film));
+        return storage.add(film);
     }
 
     public Film update(Film film) {
-        genreStorage.deleteFilmGenres(film.getId());
-        return genreStorage.addFilmGenres(storage.update(film));
+        return storage.update(film);
     }
 
     public void addLike(int filmId, int userId) {
@@ -56,24 +50,16 @@ public class FilmService {
     }
 
     public List<Film> getMostPopular(int size) {
-        List<Film> films = storage.getMostPopular(size);
-        films.forEach(film -> film.setGenres(genreStorage.getFilmGenres(film.getId())));
-        films.forEach(film -> film.setDirector(directorStorage.getFilmDirectors(film.getId())));
-        return films;
+        return storage.getMostPopular(size);
     }
 
     public Film getFilmById(int id) {
-        Film film = storage.getFilmById(id);
-        film.setGenres(genreStorage.getFilmGenres(film.getId()));
-        film.setDirector(directorStorage.getFilmDirectors(film.getId()));
-        return film;
+        return storage.getFilmById(id);
     }
 
     public List<Film> getDirectorsFilms(int directorId, String sortBy) {
         directorStorage.getDirectorById(directorId);
         List<Film> films = storage.getDirectorsFilms(directorId, sortBy);
-        films.forEach(film -> film.setGenres(genreStorage.getFilmGenres(film.getId())));
-        films.forEach(film -> film.setDirector(directorStorage.getFilmDirectors(film.getId())));
-        return films;
+        return storage.getDirectorsFilms(directorId, sortBy);
     }
 }

@@ -8,31 +8,30 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.RatingMPA;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.mpa.RatingMPAStorage;
-import ru.yandex.practicum.filmorate.util.FilmorateMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Component("databaseFilm")
 @RequiredArgsConstructor
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
-    private final DirectorStorage directorStorage;
+
     private final RatingMPAStorage ratingMPADbStorage;
     private final GenreStorage genreDbStorage;
     private final DirectorStorage directorDbStorage;
 
     @Override
     public List<Film> getAll() {
-        String sqlQuery = "select f.*, mpa_rating.name as mpa_name from films as f left join mpa_rating on " +
-                "f.mpa_id = mpa_rating.id";
+        String sqlQuery = "select * from films";
         return jdbcTemplate.query(sqlQuery, this::filmFromRow);
     }
 
@@ -41,60 +40,61 @@ public class FilmDbStorage implements FilmStorage {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("films")
                 .usingGeneratedKeyColumns("id");
-        film.setId(simpleJdbcInsert.executeAndReturnKey(FilmorateMapper.filmToRow(film)).intValue());
-        directorStorage.addFilmDirectors(film);
-        log.info("Добавлен новый фильм {}.", film);
-        return getFilmById(film.getId());
+        int id = simpleJdbcInsert.executeAndReturnKey(filmToRow(film)).intValue();
+        directorDbStorage.addFilmDirectors(film, id);
+        genreDbStorage.addFilmGenres(film, id);
+        log.info("Добавлен новый фильм {}.", getFilmById(id));
+        return getFilmById(id);
     }
 
     @Override
     public Film update(Film film) {
         String sqlQuery = "update films set name = ?, description = ?, release_date = ?, " +
                 "duration = ?, mpa_id = ? where id = ?";
-        int filmId = film.getId();
-        int rowsUpdated = jdbcTemplate.update(sqlQuery,
-                film.getName(),
-                film.getDescription(),
-                film.getReleaseDate(),
-                film.getDuration(),
-                film.getMpa().getId(),
-                filmId
-        );
-        if (rowsUpdated == 1) {
-            directorStorage.addFilmDirectors(film);
-            log.info("Обновлен фильм {}.", film);
+        try {
+            getFilmById(film.getId());
+            jdbcTemplate.update(sqlQuery,
+                    film.getName(),
+                    film.getDescription(),
+                    film.getReleaseDate(),
+                    film.getDuration(),
+                    film.getMpa().getId(),
+                    film.getId());
+            genreDbStorage.addFilmGenres(film, film.getId());
+            directorDbStorage.addFilmDirectors(film, film.getId());
+            log.info("Обновлен фильм {}.", getFilmById(film.getId()));
             return getFilmById(film.getId());
-        } else {
-            throw new FilmNotFoundException("Фильм с id=" + filmId + " не найден.");
+        } catch (FilmNotFoundException e) {
+            log.debug("Обновление фильма c неверным id: {}", film.getId());
+            throw new FilmNotFoundException("Фильм с id " + film.getId() + " не существует");
         }
     }
 
     @Override
     public Film getFilmById(int id) {
+        String sqlQuery = "select * from films where id = ?";
         try {
-            String sqlQuery = "select f.*, mpa_rating.name as mpa_name from films as f left join mpa_rating " +
-                    "on f.mpa_id = mpa_rating.id where f.id = ?";
             return jdbcTemplate.queryForObject(sqlQuery, this::filmFromRow, id);
         } catch (EmptyResultDataAccessException e) {
-            throw new FilmNotFoundException("Фильм с id=" + id + " не найден.");
+            log.debug("Получение фильма с неверным id: {}", id);
+            throw new FilmNotFoundException("Фильм с id " + id + " не существует");
         }
     }
 
     @Override
     public List<Film> getMostPopular(int size) {
-        String sqlQuery = "select f.*, mpa_rating.name as mpa_name from films as f left join mpa_rating on f.mpa_id " +
-                "= mpa_rating.id left join film_likes on f.id = film_likes.film_id group by film_likes.film_id, f.id " +
-                "order by count (film_likes.user_id) desc, film_likes.film_id limit ?";
+        String sqlQuery = "select f.* from films as f left join film_likes as l on f.id = l.film_id " +
+                "group by f.id order by count(l.film_id) desc limit ?";
         return jdbcTemplate.query(sqlQuery, this::filmFromRow, size);
     }
 
     @Override
     public List<Film> getDirectorsFilms(int directorId, String sortBy) {
-        String sqlQuerySortedByYear = "select * from films as f where f.id in (select id from director_films where " +
-                "director_id = ?) order by extract(year from cast(f.release_date as date))";
+        String sqlQuerySortedByYear = "select * from films as f where f.id in (select film_id from director_films " +
+                "where director_id = ?) order by extract(year from cast(f.release_date as date))";
 
         String sqlQuerySortedByLikes = "select * from films as f left join film_likes as l on f.id = l.film_id " +
-                "where id in (select id from director_films where " +
+                "where f.id in (select film_id from director_films where " +
                 "director_id = ?) group by f.id order by count(l.film_id)";
 
         if (sortBy.equals("year")) {
@@ -113,7 +113,17 @@ public class FilmDbStorage implements FilmStorage {
                 .duration(rsFilm.getInt("duration"))
                 .mpa(ratingMPADbStorage.getRatingMPAById(rsFilm.getInt("mpa_id")))
                 .genres(genreDbStorage.getFilmGenres(rsFilm.getInt("id")))
-                .director(directorDbStorage.getFilmDirectors(rsFilm.getInt("id")))
+                .directors(directorDbStorage.getFilmDirectors(rsFilm.getInt("id")))
                 .build();
+    }
+
+    private Map<String, Object> filmToRow(Film film) {
+        Map<String, Object> values = new HashMap<>();
+        values.put("name", film.getName());
+        values.put("description", film.getDescription());
+        values.put("release_date", film.getReleaseDate());
+        values.put("duration", film.getDuration());
+        values.put("mpa_id", film.getMpa().getId());
+        return values;
     }
 }
