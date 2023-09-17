@@ -105,6 +105,19 @@ public class FilmDbStorage implements FilmStorage {
         }
     }
 
+    /*
+        Поиск по названию фильма или по режиссеру
+     */
+    @Override
+    public List<Film> search(String query, String by) {
+        String[] splitSearchParameter = by.split(",");
+        if (splitSearchParameter.length == 2) {
+            return jdbcTemplate.query(getSqlQuery(by), this::filmFromRow, query, query);
+        } else {
+            return jdbcTemplate.query(getSqlQuery(by), this::filmFromRow, query);
+        }
+    }
+
     private Film filmFromRow(ResultSet rsFilm, int rowNumFilm) throws SQLException {
         return Film.builder()
                 .id(rsFilm.getInt("id"))
@@ -129,75 +142,24 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     /*
-        Поиск по названию фильма или по режиссеру
-     */
-    @Override
-    public List<Film> search(String textForSearch, String searchParameter) {
-        String[] splitSearchParameter = searchParameter.split(",");
-        validateText(splitSearchParameter);
-        if (splitSearchParameter.length == 2) {
-            String sqlQuery =
-                    "SELECT COUNT (fl.film_id) AS rate, f.*, d.name, mr.name AS mpa_name, g.*, d.* " +
-                            "FROM films AS f " +
-                            "LEFT JOIN film_likes AS fl ON fl.film_id=f.id " +
-                            "LEFT JOIN director_films AS df ON df.film_id=f.id " +
-                            "LEFT JOIN directors AS d ON d.id=df.director_id " +
-                            "LEFT JOIN mpa_rating AS mr ON mr.id=f.mpa_id " +
-                            "LEFT JOIN film_genres AS fg ON fg.film_id=f.id " +
-                            "LEFT JOIN genres AS g ON fg.genre_id=g.id " +
-                            "WHERE d.name ILIKE ? OR f.name ILIKE ? " +
-                            "GROUP BY f.id, d.name, mr.id, g.id, d.id " +
-                            "ORDER BY rate DESC";
-
-            return jdbcTemplate.query(sqlQuery, this::filmFromRow, "%" + textForSearch + "%", "%" + textForSearch + "%");
-        } else {
-            String sqlQuery = getSqlQuery(searchParameter);
-            return jdbcTemplate.query(sqlQuery, this::filmFromRow, "%" + textForSearch + "%");
-        }
-    }
-
-    /*
         Определение параметра для фильтрации
      */
     private String getSqlQuery(String searchParameter) {
         String condition;
         if (searchParameter.equals("director")) {
-            condition = "WHERE d.name ILIKE ? ";
+            condition = "WHERE d.name ILIKE '%'||?||'%' ";
+        } else if (searchParameter.equals("title")) {
+            condition = "WHERE f.name ILIKE '%'||?||'%' ";
         } else {
-            condition = "WHERE f.name ILIKE ? ";
+            condition = "WHERE d.name ILIKE '%'||?||'%' OR f.name ILIKE '%'||?||'%' ";
         }
-        String sqlQuery = "SELECT COUNT (fl.film_id) AS rate, f.*, d.name, mr.name AS mpa_name, g.*, d.* " +
+        return "SELECT f.* " +
                 "FROM films AS f " +
                 "LEFT JOIN film_likes AS fl ON fl.film_id=f.id " +
                 "LEFT JOIN director_films AS df ON df.film_id=f.id " +
                 "LEFT JOIN directors AS d ON d.id=df.director_id " +
-                "LEFT JOIN mpa_rating AS mr ON mr.id=f.mpa_id " +
-                "LEFT JOIN film_genres AS fg ON fg.film_id=f.id " +
-                "LEFT JOIN genres AS g ON fg.genre_id=g.id " +
                 condition +
-                "GROUP BY f.id, d.name, mr.id, g.id, d.id " +
-                "ORDER BY rate DESC";
-        return sqlQuery;
-    }
-
-    /*
-        Проверка введенных аргументов для поиска
-     */
-    private void validateText(String[] text) {
-        if (text.length > 3 || text.length == 0) {
-            throw new InvalidDataEnteredException("В запросе введено не корректное количество аргументов");
-        }
-        if (!(text[0].equals("director") || text[0].equals("title"))) {
-            throw new InvalidDataEnteredException("В запросе написаны неверные параметры поиска");
-        }
-        if (text.length == 1) {
-            return;
-        }
-        if (text[0].equals(text[1])) {
-            throw new InvalidDataEnteredException("В запросе одинаковые аргументы");
-        }
-        if (!(text[1].equals("director") || text[1].equals("title"))) {
-            throw new InvalidDataEnteredException("В запросе написаны неверные параметры поиска");
-        }
+                "GROUP BY f.id " +
+                "ORDER BY COUNT(fl.film_id) DESC";
     }
 }

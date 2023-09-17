@@ -62,7 +62,7 @@ public class FilmService {
         return storage.getDirectorsFilms(directorId, sortBy);
     }
 
-    public List<Film> searchFilms(String name, String by) {
-        return storage.search(name, by);
+    public List<Film> searchFilms(String query, String by) {
+        return storage.search(query, by);
     }
 }

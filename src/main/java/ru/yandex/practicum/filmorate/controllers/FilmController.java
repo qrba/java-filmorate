@@ -59,7 +59,9 @@ public class FilmController {
     }
 
     @GetMapping("/search")
-    public List<Film> searchFilms(@RequestParam("query") String query, @RequestParam("by") String by) {
+    public List<Film> searchFilms(@RequestParam("query") String query,
+                                  @Valid @Pattern(regexp = "director|title|director,title|title,director")
+                                  @RequestParam("by") String by) {
         return service.searchFilms(query, by);
     }
 }
