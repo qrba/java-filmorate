@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS friends (
 
 CREATE TABLE IF NOT EXISTS film_genres (
   film_id int REFERENCES films (id) ON DELETE CASCADE,
-  genre_id int REFERENCES genres (id)
+  genre_id int REFERENCES genres (id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS film_likes (

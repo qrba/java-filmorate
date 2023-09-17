@@ -4,8 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -22,21 +22,18 @@ public class FilmService {
 
     private final LikeStorage likeStorage;
 
-    private final GenreStorage genreStorage;
+    private final DirectorStorage directorStorage;
 
     public List<Film> getFilms() {
-        List<Film> films = storage.getAll();
-        films.forEach(film -> film.setGenres(genreStorage.getFilmGenres(film.getId())));
-        return films;
+        return storage.getAll();
     }
 
     public Film add(Film film) {
-        return genreStorage.addFilmGenres(storage.add(film));
+        return storage.add(film);
     }
 
     public Film update(Film film) {
-        genreStorage.deleteFilmGenres(film.getId());
-        return genreStorage.addFilmGenres(storage.update(film));
+        return storage.update(film);
     }
 
     public void addLike(int filmId, int userId) {
@@ -52,15 +49,16 @@ public class FilmService {
     }
 
     public List<Film> getMostPopular(int size) {
-        List<Film> films = storage.getMostPopular(size);
-        films.forEach(film -> film.setGenres(genreStorage.getFilmGenres(film.getId())));
-        return films;
+        return storage.getMostPopular(size);
     }
 
     public Film getFilmById(int id) {
-        Film film = storage.getFilmById(id);
-        film.setGenres(genreStorage.getFilmGenres(film.getId()));
-        return film;
+        return storage.getFilmById(id);
+    }
+
+    public List<Film> getDirectorsFilms(int directorId, String sortBy) {
+        directorStorage.getDirectorById(directorId);
+        return storage.getDirectorsFilms(directorId, sortBy);
     }
 
     public void delete(int id) {

@@ -14,6 +14,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Positive;
 import java.util.Collection;
 import java.util.List;
 
@@ -67,5 +69,11 @@ public class FilmController {
     @GetMapping("/common")
     public List<Film> getCommonFilms(@RequestParam int userId, @RequestParam int friendId) {
         return service.getCommonFilms(userId, friendId);
+    }
+
+    @GetMapping("/director/{directorId}")
+    public List<Film> getDirectorsFilms(@Valid @Positive @PathVariable int directorId,
+                                        @Valid @Pattern(regexp = "year|likes") @RequestParam String sortBy) {
+        return service.getDirectorsFilms(directorId, sortBy);
     }
 }

@@ -96,6 +96,41 @@ public class UserStorageTest {
     }
 
     @Test
+    void shouldAddDeleteGetFriend(@Qualifier("databaseUser") UserStorage userStorage) {
+        User user1 = new User(1, "test1@email.com", "testLogin1",
+                "testName1", LocalDate.parse("2000-05-25"));
+        User user2 = new User(2, "test2@email.com", "testLogin2",
+                "testName2", LocalDate.parse("1990-06-11"));
+        userStorage.add(user1);
+        userStorage.add(user2);
+        storage.addFriend(user1.getId(), user2.getId());
+        List<User> friends = storage.getFriends(user1.getId());
+
+        assertEquals(1, friends.size());
+        assertEquals(user2, friends.get(0));
+    }
+
+    @Test
+    void shouldGetCommonFriends(@Qualifier("databaseUser") UserStorage userStorage) {
+        User user1 = new User(1, "test1@email.com", "testLogin1",
+                "testName1", LocalDate.parse("2000-05-25"));
+        User user2 = new User(2, "test2@email.com", "testLogin2",
+                "testName2", LocalDate.parse("1990-06-11"));
+        User user3 = new User(3, "test3@email.com", "testLogin3",
+                "testName3", LocalDate.parse("1995-08-02"));
+        userStorage.add(user1);
+        userStorage.add(user2);
+        userStorage.add(user3);
+        storage.addFriend(user1.getId(), user2.getId());
+        storage.addFriend(user1.getId(), user3.getId());
+        storage.addFriend(user2.getId(), user3.getId());
+        List<User> commonFriends = storage.getCommonFriends(user1.getId(), user2.getId());
+
+        assertEquals(1, commonFriends.size());
+        assertEquals(user3, commonFriends.get(0));
+    }
+
+    @Test
     void shouldDeleteUser() {
         UserNotFoundException e = Assertions.assertThrows(
                 UserNotFoundException.class,
