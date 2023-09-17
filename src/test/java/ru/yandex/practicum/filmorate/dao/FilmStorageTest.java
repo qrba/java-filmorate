@@ -173,6 +173,8 @@ public class FilmStorageTest {
         storage.add(film1);
 
         directorStorage.addDirector(new Director(2, "no name"));
+        List<Director> directors = new ArrayList<>();
+        directors.add(new Director(2, "no name"));
         Film film2 = Film.builder()
                 .id(2)
                 .name("no name")
@@ -184,16 +186,20 @@ public class FilmStorageTest {
                 .directors(new ArrayList<>())
                 .build();
         storage.add(film2);
-        Film foundFilm2 = storage.search("NaMe", "director").get(0);
+        film2.setDirectors(directors);
+        directorStorage.addFilmDirectors(film2, film2.getId());
+        Film foundFilm2 = storage.search("name", "director").get(0);
         assertEquals("", film2, foundFilm2);
     }
 
     @Test
     public void searchForMovieByTitleAndDirectorTest() {
-        directorStorage.addDirector(new Director(1, "DiReCtOrS1 bY searching"));
+        directorStorage.addDirector(new Director(1, "DiReCtOrS1 bY sEaRcHiNg"));
+        List<Director> directors = new ArrayList<>();
+        directors.add(new Director(1, "DiReCtOrS1 bY sEaRcHiNg"));
         Film film1 = Film.builder()
                 .id(1)
-                .name("Film1 sEaRcHiNg")
+                .name("Film1")
                 .description("Film1 by test")
                 .releaseDate(LocalDate.parse("1995-10-20"))
                 .duration(200)
@@ -201,10 +207,11 @@ public class FilmStorageTest {
                 .genres(new ArrayList<>())
                 .directors(new ArrayList<>())
                 .build();
-        directorStorage.addFilmDirectors(film1, 1);
         storage.add(film1);
+        film1.setDirectors(directors);
+        directorStorage.addFilmDirectors(film1, film1.getId());
 
-        directorStorage.addDirector(new Director(2, "DiReCtOrS2 bY sEaRcHiNg"));
+        directorStorage.addDirector(new Director(2, "no name"));
         Film film2 = Film.builder()
                 .id(2)
                 .name("Film2 searching")
