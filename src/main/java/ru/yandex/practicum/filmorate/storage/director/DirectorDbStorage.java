@@ -7,7 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.DirectorNotFoundException;
-import ru.yandex.practicum.filmorate.model.Directors;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.sql.ResultSet;
@@ -23,51 +23,42 @@ public class DirectorDbStorage implements DirectorStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public List<Directors> getAll() {
+    public List<Director> getAll() {
         String sqlQuery = "select * from directors";
-        return jdbcTemplate.query(
-                sqlQuery,
-                this::directorFromRow
-        );
+        return jdbcTemplate.query(sqlQuery, this::directorFromRow);
     }
 
     @Override
-    public Directors getDirectorById(int id) {
+    public Director getDirectorById(int id) {
         try {
             String sqlQuery = "select * from directors where id = ?";
-            return jdbcTemplate.queryForObject(
-                    sqlQuery,
-                    this::directorFromRow,
-                    id
-            );
+            return jdbcTemplate.queryForObject(sqlQuery, this::directorFromRow, id);
         } catch (EmptyResultDataAccessException e) {
             throw new DirectorNotFoundException("Режиссер с id=" + id + " не найден.");
         }
     }
 
     @Override
-    public Directors addDirector(Directors directors) {
+    public Director addDirector(Director director) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("directors")
                 .usingGeneratedKeyColumns("id");
-        int id = simpleJdbcInsert.executeAndReturnKey(directorToRow(directors)).intValue();
+        int id = simpleJdbcInsert.executeAndReturnKey(directorToRow(director)).intValue();
         log.info("Добавлен новый режиссер {}.", getDirectorById(id));
         return getDirectorById(id);
     }
 
     @Override
-    public Directors updateDirector(Directors directors) {
+    public Director updateDirector(Director director) {
         String sqlQuery = "update directors set id = ?, name = ?";
         try {
-            getDirectorById(directors.getId());
+            getDirectorById(director.getId());
         } catch (DirectorNotFoundException e) {
-            log.debug("Обновление режиссера c неверным id: {}", directors.getId());
-            throw new DirectorNotFoundException("Режиссер с id " + directors.getId() + " не существует");
+            log.debug("Обновление режиссера c неверным id: {}", director.getId());
+            throw new DirectorNotFoundException("Режиссер с id " + director.getId() + " не существует");
         }
-        jdbcTemplate.update(sqlQuery,
-                directors.getId(),
-                directors.getName());
-        return getDirectorById(directors.getId());
+        jdbcTemplate.update(sqlQuery, director.getId(), director.getName());
+        return getDirectorById(director.getId());
     }
 
     @Override
@@ -83,7 +74,7 @@ public class DirectorDbStorage implements DirectorStorage {
     }
 
     @Override
-    public List<Directors> getFilmDirectors(int filmId) {
+    public List<Director> getFilmDirectors(int filmId) {
         return jdbcTemplate.query(
                 "select d.* from directors as d join director_films as df on d.id = df.director_id " +
                         "where df.film_id = ?",
@@ -106,15 +97,15 @@ public class DirectorDbStorage implements DirectorStorage {
         film.getDirectors().forEach(director -> jdbcTemplate.update(sqlQuery, filmId, director.getId()));
     }
 
-    private Map<String, Object> directorToRow(Directors directors) {
+    private Map<String, Object> directorToRow(Director director) {
         Map<String, Object> values = new HashMap<>();
-        values.put("id", directors.getId());
-        values.put("name", directors.getName());
+        values.put("id", director.getId());
+        values.put("name", director.getName());
         return values;
     }
 
-    private Directors directorFromRow(ResultSet rs, int rowNum) throws SQLException {
-        return new Directors(
+    private Director directorFromRow(ResultSet rs, int rowNum) throws SQLException {
+        return new Director(
                 rs.getInt("id"),
                 rs.getString("name")
         );
