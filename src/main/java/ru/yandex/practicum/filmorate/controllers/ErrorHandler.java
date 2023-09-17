@@ -14,7 +14,6 @@ import ru.yandex.practicum.filmorate.exceptions.RatingMPANotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ReviewNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.DirectorNotFoundException;
-import ru.yandex.practicum.filmorate.model.ErrorResponse;
 
 import javax.validation.ConstraintViolationException;
 import java.util.Objects;
