@@ -123,6 +123,23 @@ public class FilmStorageTest {
     }
 
     @Test
+    void shouldDeleteFilm() {
+        FilmNotFoundException e = Assertions.assertThrows(
+                FilmNotFoundException.class,
+                () -> {
+                    Film film = new Film("Film", "Film is a test entity",
+                            LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
+                    storage.add(film);
+                    int id = film.getId();
+                    storage.delete(id);
+                    storage.getFilmById(id);
+                }
+        );
+
+        assertEquals("Фильм с id=1 не найден.", e.getMessage());
+    }
+
+    @Test
     void shouldGetCommonFilms(@Autowired LikeStorage likeStorage) {
         Film film = new Film("Film", "Film is a test entity",
                 LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));

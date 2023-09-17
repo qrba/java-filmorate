@@ -55,4 +55,8 @@ public class UserService {
         getUserById(otherId);
         return friendStorage.getCommonFriends(id, otherId);
     }
+
+    public void delete(int id) {
+        storage.delete(id);
+    }
 }

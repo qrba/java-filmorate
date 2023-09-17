@@ -76,6 +76,12 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public void delete(int id) {
+        jdbcTemplate.update("delete from films where id = ?", id);
+        log.info("Удален фильм с id={}.", id);
+    }
+
+    @Override
     public List<Film> getCommonFilms(int userId, int friendId) {
         String sqlQuery = "select f.*, mr.name as mpa_name from films as f left join mpa_rating as mr " +
                 "on f.mpa_id = mr.id left join film_likes as fl1 on fl1.film_id = f.id left join film_likes as fl2 " +
