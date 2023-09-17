@@ -45,12 +45,12 @@ public class ErrorHandler {
         return new ErrorResponse(e.getMessage().substring(e.getMessage().indexOf(".") + 1));
     }
 
-    @ExceptionHandler
+    /*@ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleInternalErrors(Throwable e) {
         log.error(e.getMessage());
         return new ErrorResponse("Произошла непредвиденная ошибка.");
-    }
+    }*/
 
     @Getter
     @RequiredArgsConstructor

@@ -71,4 +71,8 @@ public class FilmService {
         userStorage.getUserById(friendId);
         return storage.getCommonFilms(userId, friendId);
     }
+
+    public List<Film> getRecommendations(int userId) {
+        return storage.getRecommendations(userId);
+    }
 }
