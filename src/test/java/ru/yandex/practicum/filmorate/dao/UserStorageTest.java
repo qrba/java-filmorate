@@ -94,4 +94,21 @@ public class UserStorageTest {
 
         assertEquals("Пользователь с id=100 не найден.", e.getMessage());
     }
+
+    @Test
+    void shouldDeleteUser() {
+        UserNotFoundException e = Assertions.assertThrows(
+                UserNotFoundException.class,
+                () -> {
+                    User user = new User(1, "test@email.com", "testLogin",
+                            "testName", LocalDate.parse("2000-05-25"));
+                    User addedUser = storage.add(user);
+                    int id = user.getId();
+                    storage.delete(id);
+                    storage.getUserById(id);
+                }
+        );
+
+        assertEquals("Пользователь с id=1 не найден.", e.getMessage());
+    }
 }

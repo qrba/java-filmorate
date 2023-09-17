@@ -62,4 +62,17 @@ public class FilmService {
         film.setGenres(genreStorage.getFilmGenres(film.getId()));
         return film;
     }
+
+    public void delete(int id) {
+        storage.delete(id);
+    }
+
+
+    public List<Film> getCommonFilms(int userId, int friendId) {
+        userStorage.getUserById(userId);
+        userStorage.getUserById(friendId);
+        List<Film> films = storage.getCommonFilms(userId, friendId);
+        films.forEach(film -> film.setGenres(genreStorage.getFilmGenres(film.getId())));
+        return films;
+    }
 }

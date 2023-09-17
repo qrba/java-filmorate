@@ -121,4 +121,44 @@ public class FilmStorageTest {
         assertEquals(film2, mostPopular.get(0));
         assertEquals(film1, mostPopular.get(1));
     }
+
+    @Test
+    void shouldDeleteFilm() {
+        FilmNotFoundException e = Assertions.assertThrows(
+                FilmNotFoundException.class,
+                () -> {
+                    Film film = new Film("Film", "Film is a test entity",
+                            LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
+                    storage.add(film);
+                    int id = film.getId();
+                    storage.delete(id);
+                    storage.getFilmById(id);
+                }
+        );
+
+        assertEquals("Фильм с id=1 не найден.", e.getMessage());
+    }
+
+    @Test
+    void shouldGetCommonFilms(@Autowired LikeStorage likeStorage) {
+        Film film = new Film("Film", "Film is a test entity",
+                LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
+        storage.add(film);
+        User user1 = new User(1, "test1@email.com", "testLogin1",
+                "testUsername1", LocalDate.parse("2000-05-25"));
+        userStorage.add(user1);
+        User user2 = new User(2, "test2@email.com", "testLogin2",
+                "testUsername2", LocalDate.parse("1983-07-12"));
+        userStorage.add(user2);
+        likeStorage.addLike(film.getId(), user1.getId());
+        List<Film> commonFilms = storage.getCommonFilms(user1.getId(), user2.getId());
+
+        assertEquals(0, commonFilms.size());
+
+        likeStorage.addLike(film.getId(), user2.getId());
+        commonFilms = storage.getCommonFilms(user1.getId(), user2.getId());
+
+        assertEquals(1, commonFilms.size());
+        assertEquals(film, commonFilms.get(0));
+    }
 }
