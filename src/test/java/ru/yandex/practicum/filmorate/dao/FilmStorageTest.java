@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import ru.yandex.practicum.filmorate.model.Directors;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.RatingMPA;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
@@ -126,7 +126,7 @@ public class FilmStorageTest {
 
     @Test
     public void searchForMovieByTitleTest() {
-        directorStorage.addDirector(new Directors(1, "DiReCtOrS bY sEaRcHiNg"));
+        directorStorage.addDirector(new Director(1, "DiReCtOrS bY sEaRcHiNg"));
         Film film1 = Film.builder()
                 .id(1)
                 .name("Film sEaRcHiNg")
@@ -140,7 +140,7 @@ public class FilmStorageTest {
         directorStorage.addFilmDirectors(film1, 1);
         storage.add(film1);
 
-        directorStorage.addDirector(new Directors(2, "no name"));
+        directorStorage.addDirector(new Director(2, "no name"));
         Film film2 = Film.builder()
                 .id(2)
                 .name("no name")
@@ -158,7 +158,7 @@ public class FilmStorageTest {
 
     @Test
     public void searchForMovieByDirectorTest() {
-        directorStorage.addDirector(new Directors(1, "DiReCtOrS bY sEaRcHiNg"));
+        directorStorage.addDirector(new Director(1, "DiReCtOrS bY sEaRcHiNg"));
         Film film1 = Film.builder()
                 .id(1)
                 .name("Film sEaRcHiNg")
@@ -172,7 +172,7 @@ public class FilmStorageTest {
         directorStorage.addFilmDirectors(film1, 1);
         storage.add(film1);
 
-        directorStorage.addDirector(new Directors(2, "no name"));
+        directorStorage.addDirector(new Director(2, "no name"));
         Film film2 = Film.builder()
                 .id(2)
                 .name("no name")
@@ -190,7 +190,7 @@ public class FilmStorageTest {
 
     @Test
     public void searchForMovieByTitleAndDirectorTest() {
-        directorStorage.addDirector(new Directors(1, "DiReCtOrS1 bY searching"));
+        directorStorage.addDirector(new Director(1, "DiReCtOrS1 bY searching"));
         Film film1 = Film.builder()
                 .id(1)
                 .name("Film1 sEaRcHiNg")
@@ -204,7 +204,7 @@ public class FilmStorageTest {
         directorStorage.addFilmDirectors(film1, 1);
         storage.add(film1);
 
-        directorStorage.addDirector(new Directors(2, "DiReCtOrS2 bY sEaRcHiNg"));
+        directorStorage.addDirector(new Director(2, "DiReCtOrS2 bY sEaRcHiNg"));
         Film film2 = Film.builder()
                 .id(2)
                 .name("Film2 searching")
