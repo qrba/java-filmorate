@@ -25,7 +25,7 @@ public class DirectorDbStorage implements DirectorStorage {
     @Override
     public List<Director> getAll() {
         String sqlQuery = "select * from directors";
-        return jdbcTemplate.query( sqlQuery, this::directorFromRow);
+        return jdbcTemplate.query(sqlQuery, this::directorFromRow);
     }
 
     @Override
