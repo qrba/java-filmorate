@@ -60,4 +60,15 @@ public class FilmService {
         directorStorage.getDirectorById(directorId);
         return storage.getDirectorsFilms(directorId, sortBy);
     }
+
+    public void delete(int id) {
+        storage.delete(id);
+    }
+
+
+    public List<Film> getCommonFilms(int userId, int friendId) {
+        userStorage.getUserById(userId);
+        userStorage.getUserById(friendId);
+        return storage.getCommonFilms(userId, friendId);
+    }
 }

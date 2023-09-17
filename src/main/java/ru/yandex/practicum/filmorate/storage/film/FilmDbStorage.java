@@ -103,6 +103,21 @@ public class FilmDbStorage implements FilmStorage {
         }
     }
 
+    @Override
+    public void delete(int id) {
+        jdbcTemplate.update("delete from films where id = ?", id);
+        log.info("Удален фильм с id={}.", id);
+    }
+
+    @Override
+    public List<Film> getCommonFilms(int userId, int friendId) {
+        String sqlQuery = "select f.* from films as f " +
+                "left join film_likes as fl1 on fl1.film_id = f.id left join film_likes as fl2 " +
+                "on fl2.film_id = f.id left join film_likes as fl3 on fl3.film_id = f.id " +
+                "where fl1.user_id = ? and fl2.user_id = ? group by f.id order by count (fl3.user_id) desc, f.id";
+        return jdbcTemplate.query(sqlQuery, this::filmFromRow, userId, friendId);
+    }
+
     private Film filmFromRow(ResultSet rsFilm, int rowNumFilm) throws SQLException {
         return Film.builder()
                 .id(rsFilm.getInt("id"))
