@@ -18,6 +18,7 @@ import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -33,17 +34,34 @@ public class ReviewStorageTest {
 
     @BeforeEach
     void addUserAndFilm() {
-        Film film = new Film("Film", "Film is a test entity",
-                LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
-        filmStorage.add(film);
-        User user = new User(1, "test@email.com", "testLogin",
-                "testName", LocalDate.parse("2000-05-25"));
-        userStorage.add(user);
+        Film filmToAdd = Film.builder()
+                .name("Film")
+                .description("Film is a test entity")
+                .releaseDate(LocalDate.parse("1985-10-20"))
+                .duration(90)
+                .mpa(new RatingMPA(1, "G"))
+                .genres(Collections.emptyList())
+                .directors(Collections.emptyList())
+                .build();
+        filmStorage.add(filmToAdd);
+        User userToAdd = User.builder()
+                .email("test@email.com")
+                .login("testLogin")
+                .name("testUsername")
+                .birthday(LocalDate.parse("2000-05-25"))
+                .build();
+        userStorage.add(userToAdd);
     }
 
     @Test
     void shouldAddReview() {
-        Review review = new Review("Review", true, 1, 1);
+        Review review = Review.builder()
+                .content("Review")
+                .isPositive(true)
+                .filmId(1)
+                .userId(1)
+                .build();
+        reviewStorage.add(review);
         Review addedReview = reviewStorage.add(review);
 
         assertEquals(review, addedReview);
@@ -51,9 +69,19 @@ public class ReviewStorageTest {
 
     @Test
     void shouldUpdateReview() {
-        Review review = new Review("Review", true, 1, 1);
+        Review review = Review.builder()
+                .content("Review")
+                .isPositive(true)
+                .filmId(1)
+                .userId(1)
+                .build();
         reviewStorage.add(review);
-        review = new Review("Updated review", false, 1, 1);
+        review = Review.builder()
+                .content("Updated review")
+                .isPositive(false)
+                .filmId(1)
+                .userId(1)
+                .build();
         review.setReviewId(1);
         Review updatedReview = reviewStorage.update(review);
 
@@ -65,9 +93,19 @@ public class ReviewStorageTest {
         ReviewNotFoundException e = Assertions.assertThrows(
                 ReviewNotFoundException.class,
                 () -> {
-                    Review review = new Review("Review", true, 1, 1);
+                    Review review = Review.builder()
+                            .content("Review")
+                            .isPositive(true)
+                            .filmId(1)
+                            .userId(1)
+                            .build();
                     reviewStorage.add(review);
-                    review = new Review("Updated review", false, 1, 1);
+                    review = Review.builder()
+                            .content("Updated review")
+                            .isPositive(false)
+                            .filmId(1)
+                            .userId(1)
+                            .build();
                     reviewStorage.update(review);
                 }
         );
@@ -80,7 +118,12 @@ public class ReviewStorageTest {
         ReviewNotFoundException e = Assertions.assertThrows(
                 ReviewNotFoundException.class,
                 () -> {
-                    Review review = new Review("Review", true, 1, 1);
+                    Review review = Review.builder()
+                            .content("Review")
+                            .isPositive(true)
+                            .filmId(1)
+                            .userId(1)
+                            .build();
                     reviewStorage.add(review);
                     int id = review.getReviewId();
                     reviewStorage.delete(id);
@@ -93,7 +136,12 @@ public class ReviewStorageTest {
 
     @Test
     void shouldGetReviewById() {
-        Review review = new Review("Review", true, 1, 1);
+        Review review = Review.builder()
+                .content("Review")
+                .isPositive(true)
+                .filmId(1)
+                .userId(1)
+                .build();
         reviewStorage.add(review);
         Review reviewById = reviewStorage.getReviewById(review.getReviewId());
 
@@ -105,7 +153,12 @@ public class ReviewStorageTest {
         ReviewNotFoundException e = Assertions.assertThrows(
                 ReviewNotFoundException.class,
                 () -> {
-                    Review review = new Review("Review", true, 1, 1);
+                    Review review = Review.builder()
+                            .content("Review")
+                            .isPositive(true)
+                            .filmId(1)
+                            .userId(1)
+                            .build();
                     reviewStorage.add(review);
                     reviewStorage.getReviewById(100);
                 }
@@ -116,7 +169,12 @@ public class ReviewStorageTest {
 
     @Test
     void shouldGetSomeReviews() {
-        Review review = new Review("Review", true, 1, 1);
+        Review review = Review.builder()
+                .content("Review")
+                .isPositive(true)
+                .filmId(1)
+                .userId(1)
+                .build();
         reviewStorage.add(review);
         List<Review> reviews = reviewStorage.getSomeReviews(1,1);
 

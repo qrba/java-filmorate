@@ -7,11 +7,10 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.GenreNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
-import ru.yandex.practicum.filmorate.util.FilmorateMapper;
 
-import java.util.Comparator;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -23,7 +22,7 @@ public class GenreDbStorage implements GenreStorage {
         String sqlQuery = "select * from genres";
         return jdbcTemplate.query(
                 sqlQuery,
-                FilmorateMapper::genreFromRow
+                this::genreFromRow
         );
     }
 
@@ -33,7 +32,7 @@ public class GenreDbStorage implements GenreStorage {
             String sqlQuery = "select * from genres where id = ?";
             return jdbcTemplate.queryForObject(
                     sqlQuery,
-                    FilmorateMapper::genreFromRow,
+                    this::genreFromRow,
                     id
             );
         } catch (EmptyResultDataAccessException e) {
@@ -43,31 +42,33 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public List<Genre> getFilmGenres(int filmId) {
-        return jdbcTemplate.query(
-                "select g.* from genres as g join film_genres as fg on g.id = fg.genre_id where fg.film_id = ?",
-                FilmorateMapper::genreFromRow,
-                filmId
-        );
+        String sqlQuery = "select * from genres where id in (select genre_id from film_genres where film_id = ?)";
+        List<Genre> g = jdbcTemplate.query(sqlQuery, this::genreFromRow, filmId);
+        return g;
     }
 
     @Override
-    public Film addFilmGenres(Film film) {
-        List<Genre> genres = film.getGenres();
-        if (genres != null && !genres.isEmpty()) {
-            genres = genres.stream()
-                    .distinct()
-                    .sorted(Comparator.comparingInt(Genre::getId))
-                    .collect(Collectors.toList());
-            film.setGenres(genres);
-            String sqlQuery = "insert into film_genres (film_id, genre_id) values (?, ?)";
-            int filmId = film.getId();
-            genres.forEach(genre -> jdbcTemplate.update(sqlQuery, filmId, genre.getId()));
+    public void addFilmGenres(Film film, int filmId) {
+        if (!getFilmGenres(film.getId()).isEmpty()) {
+            String sqlQuery = "delete from film_genres where film_id = ?";
+            jdbcTemplate.update(sqlQuery, filmId);
         }
-        return film;
+        if (film.getGenres() == null) {
+            return;
+        }
+        String sqlQuery = "insert into film_genres(film_id, genre_id) values (?, ?)";
+        film.getGenres().forEach(genre -> jdbcTemplate.update(sqlQuery, filmId, genre.getId()));
     }
 
     @Override
     public void deleteFilmGenres(int filmId) {
         jdbcTemplate.update("delete from film_genres where film_id = ?", filmId);
+    }
+
+    private Genre genreFromRow(ResultSet resultSet, int rowNum) throws SQLException {
+        return Genre.builder()
+                .id(resultSet.getInt("id"))
+                .name(resultSet.getString("name"))
+                .build();
     }
 }

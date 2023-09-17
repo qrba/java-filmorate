@@ -17,6 +17,7 @@ import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -34,12 +35,26 @@ public class FilmStorageTest {
 
     @Test
     void shouldGetAll() {
-        Film film1 = new Film("Film 1", "Film 1 is a test entity",
-                LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
-        storage.add(film1);
-        Film film2 = new Film("Film 2", "Film 2 is a test entity",
-                LocalDate.parse("1995-10-20"), 190, new RatingMPA(5, "NC-17"));
-        storage.add(film2);
+        Film filmToAdd = Film.builder()
+                .name("Film 1")
+                .description("Film 1 is a test entity")
+                .releaseDate(LocalDate.parse("1985-10-20"))
+                .duration(90)
+                .mpa(new RatingMPA(1, "G"))
+                .genres(Collections.emptyList())
+                .directors(Collections.emptyList())
+                .build();
+        Film film1 = storage.add(filmToAdd);
+        filmToAdd = Film.builder()
+                .name("Film 2")
+                .description("Film 2 is a test entity")
+                .releaseDate(LocalDate.parse("1995-10-20"))
+                .duration(190)
+                .mpa(new RatingMPA(5, "NC-17"))
+                .genres(Collections.emptyList())
+                .directors(Collections.emptyList())
+                .build();
+        Film film2 = storage.add(filmToAdd);
 
         List<Film> films = storage.getAll();
         assertEquals(2, films.size());
@@ -49,21 +64,43 @@ public class FilmStorageTest {
 
     @Test
     void shouldAdd() {
-        Film film = new Film("Film", "Film is a test entity",
-                LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
+        Film film = Film.builder()
+                .name("Film")
+                .description("Film is a test entity")
+                .releaseDate(LocalDate.parse("1985-10-20"))
+                .duration(90)
+                .mpa(new RatingMPA(1, "G"))
+                .genres(Collections.emptyList())
+                .directors(Collections.emptyList())
+                .build();
         Film addedFilm = storage.add(film);
+        film.setId(addedFilm.getId());
 
         assertEquals(film, addedFilm);
     }
 
     @Test
     void shouldUpdate() {
-        Film film = new Film("Film", "Film is a test entity",
-                LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
-        storage.add(film);
-        Film newFilm = new Film("Film Updated", "Film Updated is a test entity",
-                LocalDate.parse("1995-10-20"), 190, new RatingMPA(1, "G"));
-        newFilm.setId(film.getId());
+        Film filmToAdd = Film.builder()
+                .name("Film")
+                .description("Film is a test entity")
+                .releaseDate(LocalDate.parse("1985-10-20"))
+                .duration(90)
+                .mpa(new RatingMPA(1, "G"))
+                .genres(Collections.emptyList())
+                .directors(Collections.emptyList())
+                .build();
+        Film film = storage.add(filmToAdd);
+        Film newFilm = Film.builder()
+                .id(film.getId())
+                .name("Film Updated")
+                .description("Film Updated is a test entity")
+                .releaseDate(LocalDate.parse("1995-10-20"))
+                .duration(190)
+                .mpa(new RatingMPA(1, "G"))
+                .genres(Collections.emptyList())
+                .directors(Collections.emptyList())
+                .build();
         Film updatedFilm = storage.update(newFilm);
 
         assertEquals(newFilm, updatedFilm);
@@ -74,21 +111,35 @@ public class FilmStorageTest {
         FilmNotFoundException e = Assertions.assertThrows(
                 FilmNotFoundException.class,
                 () -> {
-                    Film film = new Film("Film", "Film is a test entity",
-                            LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
-                    film.setId(100);
+                    Film film = Film.builder()
+                            .id(100)
+                            .name("Film")
+                            .description("Film is a test entity")
+                            .releaseDate(LocalDate.parse("1985-10-20"))
+                            .duration(90)
+                            .mpa(new RatingMPA(1, "G"))
+                            .genres(Collections.emptyList())
+                            .directors(Collections.emptyList())
+                            .build();
                     storage.update(film);
                 }
         );
 
-        assertEquals("Фильм с id=100 не найден.", e.getMessage());
+        assertEquals("Фильм с id 100 не существует", e.getMessage());
     }
 
     @Test
     void shouldGetFilmById() {
-        Film film = new Film("Film", "Film is a test entity",
-                LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
-        storage.add(film);
+        Film filmToAdd = Film.builder()
+                .name("Film")
+                .description("Film is a test entity")
+                .releaseDate(LocalDate.parse("1985-10-20"))
+                .duration(90)
+                .mpa(new RatingMPA(1, "G"))
+                .genres(Collections.emptyList())
+                .directors(Collections.emptyList())
+                .build();
+        Film film = storage.add(filmToAdd);
 
         Film filmById = storage.getFilmById(film.getId());
         assertEquals(film, filmById);
@@ -101,20 +152,38 @@ public class FilmStorageTest {
                 () -> storage.getFilmById(100)
         );
 
-        assertEquals("Фильм с id=100 не найден.", e.getMessage());
+        assertEquals("Фильм с id 100 не существует", e.getMessage());
     }
 
     @Test
     void shouldGetMostPopular(@Autowired LikeStorage likeStorage) {
-        Film film1 = new Film("Film 1", "Film 1 is a test entity",
-                LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
-        storage.add(film1);
-        Film film2 = new Film("Film 2", "Film 2 is a test entity",
-                LocalDate.parse("1995-10-20"), 190, new RatingMPA(5, "NC-17"));
-        storage.add(film2);
-        User user = new User(1, "test@email.com", "testLogin",
-                "testUsername", LocalDate.parse("2000-05-25"));
-        userStorage.add(user);
+        Film filmToAdd = Film.builder()
+                .name("Film 1")
+                .description("Film 1 is a test entity")
+                .releaseDate(LocalDate.parse("1985-10-20"))
+                .duration(90)
+                .mpa(new RatingMPA(1, "G"))
+                .genres(Collections.emptyList())
+                .directors(Collections.emptyList())
+                .build();
+        Film film1 = storage.add(filmToAdd);
+        filmToAdd = Film.builder()
+                .name("Film 2")
+                .description("Film 2 is a test entity")
+                .releaseDate(LocalDate.parse("1995-10-20"))
+                .duration(190)
+                .mpa(new RatingMPA(5, "NC-17"))
+                .genres(Collections.emptyList())
+                .directors(Collections.emptyList())
+                .build();
+        Film film2 = storage.add(filmToAdd);
+        User userToAdd = User.builder()
+                .email("test@email.com")
+                .login("testLogin")
+                .name("testUsername")
+                .birthday(LocalDate.parse("2000-05-25"))
+                .build();
+        User user = userStorage.add(userToAdd);
         likeStorage.addLike(film2.getId(), user.getId());
         List<Film> mostPopular = storage.getMostPopular(10);
 
@@ -127,29 +196,51 @@ public class FilmStorageTest {
         FilmNotFoundException e = Assertions.assertThrows(
                 FilmNotFoundException.class,
                 () -> {
-                    Film film = new Film("Film", "Film is a test entity",
-                            LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
-                    storage.add(film);
+                    Film filmToAdd = Film.builder()
+                            .name("Film")
+                            .description("Film is a test entity")
+                            .releaseDate(LocalDate.parse("1985-10-20"))
+                            .duration(90)
+                            .mpa(new RatingMPA(1, "G"))
+                            .genres(Collections.emptyList())
+                            .directors(Collections.emptyList())
+                            .build();
+                    Film film = storage.add(filmToAdd);
                     int id = film.getId();
                     storage.delete(id);
                     storage.getFilmById(id);
                 }
         );
 
-        assertEquals("Фильм с id=1 не найден.", e.getMessage());
+        assertEquals("Фильм с id 1 не существует", e.getMessage());
     }
 
     @Test
     void shouldGetCommonFilms(@Autowired LikeStorage likeStorage) {
-        Film film = new Film("Film", "Film is a test entity",
-                LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
-        storage.add(film);
-        User user1 = new User(1, "test1@email.com", "testLogin1",
-                "testUsername1", LocalDate.parse("2000-05-25"));
-        userStorage.add(user1);
-        User user2 = new User(2, "test2@email.com", "testLogin2",
-                "testUsername2", LocalDate.parse("1983-07-12"));
-        userStorage.add(user2);
+        Film filmToAdd = Film.builder()
+                .name("Film")
+                .description("Film is a test entity")
+                .releaseDate(LocalDate.parse("1985-10-20"))
+                .duration(90)
+                .mpa(new RatingMPA(1, "G"))
+                .genres(Collections.emptyList())
+                .directors(Collections.emptyList())
+                .build();
+        Film film = storage.add(filmToAdd);
+        User userToAdd = User.builder()
+                .email("test1@email.com")
+                .login("testLogin1")
+                .name("testUsername1")
+                .birthday(LocalDate.parse("2000-05-25"))
+                .build();
+        User user1 = userStorage.add(userToAdd);
+        userToAdd = User.builder()
+                .email("test2@email.com")
+                .login("testLogin2")
+                .name("testUsername2")
+                .birthday(LocalDate.parse("1987-01-10"))
+                .build();
+        User user2 = userStorage.add(userToAdd);
         likeStorage.addLike(film.getId(), user1.getId());
         List<Film> commonFilms = storage.getCommonFilms(user1.getId(), user2.getId());
 

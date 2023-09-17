@@ -17,6 +17,7 @@ import ru.yandex.practicum.filmorate.storage.reviewlikes.ReviewLikesStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
+import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -32,18 +33,34 @@ public class ReviewLikesStorageTest {
 
     @BeforeEach
     void addUserAndFilm() {
-        Film film = new Film("Film", "Film is a test entity",
-                LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
-        filmStorage.add(film);
-        User user = new User(1, "test@email.com", "testLogin",
-                "testName", LocalDate.parse("2000-05-25"));
-        userStorage.add(user);
+        Film filmToAdd = Film.builder()
+                .name("Film")
+                .description("Film is a test entity")
+                .releaseDate(LocalDate.parse("1985-10-20"))
+                .duration(90)
+                .mpa(new RatingMPA(1, "G"))
+                .genres(Collections.emptyList())
+                .directors(Collections.emptyList())
+                .build();
+        filmStorage.add(filmToAdd);
+        User userToAdd = User.builder()
+                .email("test@email.com")
+                .login("testLogin")
+                .name("testUsername")
+                .birthday(LocalDate.parse("2000-05-25"))
+                .build();
+        userStorage.add(userToAdd);
     }
 
 
     @Test
     void shouldAddLike() {
-        Review review = new Review("Review", true, 1, 1);
+        Review review = Review.builder()
+                .content("Review")
+                .isPositive(true)
+                .filmId(1)
+                .userId(1)
+                .build();
         reviewStorage.add(review);
         reviewLikesStorage.addLike(review.getReviewId(), 1, true);
         review = reviewStorage.getReviewById(1);
@@ -53,7 +70,12 @@ public class ReviewLikesStorageTest {
 
     @Test
     void shouldDeleteLike() {
-        Review review = new Review("Review", true, 1, 1);
+        Review review = Review.builder()
+                .content("Review")
+                .isPositive(true)
+                .filmId(1)
+                .userId(1)
+                .build();
         reviewStorage.add(review);
         reviewLikesStorage.addLike(review.getReviewId(), 1, true);
         reviewLikesStorage.deleteLike(1, 1, true);
