@@ -109,7 +109,7 @@ public class FilmDbStorage implements FilmStorage {
                 .id(rsFilm.getInt("id"))
                 .name(rsFilm.getString("name"))
                 .description(rsFilm.getString("description"))
-                .releaseDate(LocalDate.parse(rsFilm.getString("release_date")))
+                .releaseDate(rsFilm.getDate("release_date").toLocalDate())
                 .duration(rsFilm.getInt("duration"))
                 .mpa(ratingMPADbStorage.getRatingMPAById(rsFilm.getInt("mpa_id")))
                 .genres(genreDbStorage.getFilmGenres(rsFilm.getInt("id")))

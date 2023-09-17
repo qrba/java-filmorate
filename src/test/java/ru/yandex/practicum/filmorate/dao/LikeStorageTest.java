@@ -38,8 +38,13 @@ public class LikeStorageTest {
                 .mpa(new RatingMPA(1, "G"))
                 .build();
         Film addedFilm = filmStorage.add(film);
-        User user = new User(1, "test@email.com", "testLogin",
-                "testName", LocalDate.parse("2000-05-25"));
+        User user = User.builder()
+                .id(1)
+                .email("test@email.com")
+                .login("testLogin")
+                .name("testName")
+                .birthday(LocalDate.parse("2000-05-25"))
+                .build();
         userStorage.add(user);
         storage.addLike(addedFilm.getId(), user.getId());
         List<Integer> likes = storage.getLikes(addedFilm.getId());
