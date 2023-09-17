@@ -19,6 +19,7 @@ import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -257,7 +258,6 @@ public class FilmStorageTest {
         assertEquals(1, commonFilms.size());
         assertEquals(film, commonFilms.get(0));
     }
-    }
 
     @Test
     public void searchForMovieByTitleTest() {
@@ -288,7 +288,7 @@ public class FilmStorageTest {
                 .build();
         storage.add(film2);
         Film foundFilm1 = storage.search("search", "title").get(0);
-        assertEquals("", film1, foundFilm1);
+        assertEquals(film1, foundFilm1);
     }
 
     @Test
@@ -324,7 +324,7 @@ public class FilmStorageTest {
         film2.setDirectors(directors);
         directorStorage.addFilmDirectors(film2, film2.getId());
         Film foundFilm2 = storage.search("name", "director").get(0);
-        assertEquals("", film2, foundFilm2);
+        assertEquals(film2, foundFilm2);
     }
 
     @Test
@@ -362,6 +362,6 @@ public class FilmStorageTest {
         allFilm.add(film1);
         allFilm.add(film2);
         List<Film> foundFilm = storage.search("searc", "director,title");
-        assertEquals("", allFilm, foundFilm);
+        assertEquals(allFilm, foundFilm);
     }
 }
