@@ -64,4 +64,15 @@ public class FilmService {
     public List<Film> searchFilms(String query, String by) {
         return storage.search(query, by);
     }
+
+    public void delete(int id) {
+        storage.delete(id);
+    }
+
+
+    public List<Film> getCommonFilms(int userId, int friendId) {
+        userStorage.getUserById(userId);
+        userStorage.getUserById(friendId);
+        return storage.getCommonFilms(userId, friendId);
+    }
 }
