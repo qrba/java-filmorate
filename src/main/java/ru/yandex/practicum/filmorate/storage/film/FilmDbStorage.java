@@ -103,6 +103,7 @@ public class FilmDbStorage implements FilmStorage {
         }
     }
 
+
     /*
         Поиск по названию фильма или по режиссеру
      */
@@ -114,6 +115,7 @@ public class FilmDbStorage implements FilmStorage {
         } else {
             return jdbcTemplate.query(getSqlQuery(by), this::filmFromRow, query);
         }
+
     }
 
     private Film filmFromRow(ResultSet rsFilm, int rowNumFilm) throws SQLException {
@@ -160,4 +162,5 @@ public class FilmDbStorage implements FilmStorage {
                 "GROUP BY f.id " +
                 "ORDER BY COUNT(fl.film_id) DESC";
     }
+
 }
