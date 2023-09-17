@@ -6,7 +6,7 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Positive;
 
 @Data
-public class Directors {
+public class Director {
     @Positive
     private final int id;
     @Pattern(regexp = "^\\S.+|null")

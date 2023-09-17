@@ -31,5 +31,5 @@ public class Film {
     @Valid
     private List<Genre> genres;
     @Valid
-    private List<Directors> directors;
+    private List<Director> directors;
 }
