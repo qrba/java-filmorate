@@ -9,14 +9,17 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.RatingMPA;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.Director;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,6 +35,9 @@ public class FilmStorageTest {
 
     @Qualifier("databaseUser")
     private final UserStorage userStorage;
+
+    @Qualifier("dbDirector")
+    private final DirectorStorage directorStorage;
 
     @Test
     void shouldGetAll() {
@@ -251,6 +257,112 @@ public class FilmStorageTest {
 
         assertEquals(1, commonFilms.size());
         assertEquals(film, commonFilms.get(0));
+    }
+
+    @Test
+    public void searchForMovieByTitleTest() {
+        directorStorage.addDirector(new Director(1, "DiReCtOrS bY sEaRcHiNg"));
+        Film film1 = Film.builder()
+                .id(1)
+                .name("Film sEaRcHiNg")
+                .description("Film by test")
+                .releaseDate(LocalDate.parse("1995-10-20"))
+                .duration(200)
+                .mpa(new RatingMPA(1, "G"))
+                .genres(new ArrayList<>())
+                .directors(new ArrayList<>())
+                .build();
+        directorStorage.addFilmDirectors(film1, 1);
+        storage.add(film1);
+
+        directorStorage.addDirector(new Director(2, "no name"));
+        Film film2 = Film.builder()
+                .id(2)
+                .name("no name")
+                .description("Film by test")
+                .releaseDate(LocalDate.parse("1995-10-20"))
+                .duration(200)
+                .mpa(new RatingMPA(1, "G"))
+                .genres(new ArrayList<>())
+                .directors(new ArrayList<>())
+                .build();
+        storage.add(film2);
+        Film foundFilm1 = storage.search("search", "title").get(0);
+        assertEquals(film1, foundFilm1);
+    }
+
+    @Test
+    public void searchForMovieByDirectorTest() {
+        directorStorage.addDirector(new Director(1, "DiReCtOrS bY sEaRcHiNg"));
+        Film film1 = Film.builder()
+                .id(1)
+                .name("Film sEaRcHiNg")
+                .description("Film by test")
+                .releaseDate(LocalDate.parse("1995-10-20"))
+                .duration(200)
+                .mpa(new RatingMPA(1, "G"))
+                .genres(new ArrayList<>())
+                .directors(new ArrayList<>())
+                .build();
+        directorStorage.addFilmDirectors(film1, 1);
+        storage.add(film1);
+
+        directorStorage.addDirector(new Director(2, "no name"));
+        List<Director> directors = new ArrayList<>();
+        directors.add(new Director(2, "no name"));
+        Film film2 = Film.builder()
+                .id(2)
+                .name("no name")
+                .description("Film by test")
+                .releaseDate(LocalDate.parse("1995-10-20"))
+                .duration(200)
+                .mpa(new RatingMPA(1, "G"))
+                .genres(new ArrayList<>())
+                .directors(new ArrayList<>())
+                .build();
+        storage.add(film2);
+        film2.setDirectors(directors);
+        directorStorage.addFilmDirectors(film2, film2.getId());
+        Film foundFilm2 = storage.search("name", "director").get(0);
+        assertEquals(film2, foundFilm2);
+    }
+
+    @Test
+    public void searchForMovieByTitleAndDirectorTest() {
+        directorStorage.addDirector(new Director(1, "DiReCtOrS1 bY sEaRcHiNg"));
+        List<Director> directors = new ArrayList<>();
+        directors.add(new Director(1, "DiReCtOrS1 bY sEaRcHiNg"));
+        Film film1 = Film.builder()
+                .id(1)
+                .name("Film1")
+                .description("Film1 by test")
+                .releaseDate(LocalDate.parse("1995-10-20"))
+                .duration(200)
+                .mpa(new RatingMPA(1, "G"))
+                .genres(new ArrayList<>())
+                .directors(new ArrayList<>())
+                .build();
+        storage.add(film1);
+        film1.setDirectors(directors);
+        directorStorage.addFilmDirectors(film1, film1.getId());
+
+        directorStorage.addDirector(new Director(2, "no name"));
+        Film film2 = Film.builder()
+                .id(2)
+                .name("Film2 searching")
+                .description("Film2 by test")
+                .releaseDate(LocalDate.parse("1995-10-20"))
+                .duration(200)
+                .mpa(new RatingMPA(1, "G"))
+                .genres(new ArrayList<>())
+                .directors(new ArrayList<>())
+                .build();
+        storage.add(film2);
+        List<Film> allFilm = new ArrayList<>();
+        allFilm.add(film1);
+        allFilm.add(film2);
+        List<Film> foundFilm = storage.search("searc", "director,title");
+        assertEquals(allFilm, foundFilm);
     }
 
     @Test

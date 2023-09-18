@@ -17,7 +17,10 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Documented
 public @interface IsAfter {
     String message() default "the annotated element must be a date after the specified date";
+
     String current();
+
     Class<?>[] groups() default {};
+
     Class<? extends Payload>[] payload() default {};
 }
