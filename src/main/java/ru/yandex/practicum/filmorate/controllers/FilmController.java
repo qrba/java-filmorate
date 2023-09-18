@@ -47,11 +47,6 @@ public class FilmController {
         service.deleteLike(id, userId);
     }
 
-//    @GetMapping("/popular")
-//    public List<Film> getMostPopular(@RequestParam(defaultValue = "10") int count) {
-//        return service.getMostPopular(count);
-//    }
-
     @DeleteMapping("/{id}")
     public void deleteLike(@PathVariable int id) {
         service.delete(id);
@@ -70,7 +65,9 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopularsGenreAndYear(@RequestParam(defaultValue = "10") int limit, @RequestParam(defaultValue = "-1") int genreId, @RequestParam(defaultValue = "-1") int year) {
+    public List<Film> getPopularsGenreAndYear(@RequestParam(value = "count", defaultValue = "10") int limit,
+                                              @RequestParam(defaultValue = "-1") int genreId,
+                                              @RequestParam(defaultValue = "-1") int year) {
         return service.getPopularsGenreAndYear(limit, genreId, year);
     }
 }
