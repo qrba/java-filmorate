@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class DirectorStorageTest {
     private final DirectorStorage directorStorage;
+
     @Test
     void shouldGetAll() {
         Director director1 = new Director(0, "Test Name1");
