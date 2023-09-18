@@ -76,7 +76,7 @@ public class FilmService {
         return storage.getRecommendations(userId);
     }
 
-    public List<Film> getPopularsGenreAndYear(int limit, int genreId, int year){
+    public List<Film> getPopularsGenreAndYear(int limit, int genreId, int year) {
         return storage.getPopularsGenreAndYear(limit, genreId, year);
     }
 }

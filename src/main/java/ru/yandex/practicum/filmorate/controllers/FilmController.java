@@ -1,22 +1,13 @@
 package ru.yandex.practicum.filmorate.controllers;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Positive;
-import javax.validation.constraints.Size;
 import java.util.Collection;
 import java.util.List;
 
@@ -79,7 +70,7 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopularsGenreAndYear(@RequestParam(defaultValue = "10") int limit, @RequestParam(defaultValue = "-1") int genreId,@RequestParam(defaultValue = "-1") int year){
+    public List<Film> getPopularsGenreAndYear(@RequestParam(defaultValue = "10") int limit, @RequestParam(defaultValue = "-1") int genreId, @RequestParam(defaultValue = "-1") int year) {
         return service.getPopularsGenreAndYear(limit, genreId, year);
     }
 }
