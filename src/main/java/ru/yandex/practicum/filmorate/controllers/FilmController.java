@@ -16,6 +16,7 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Positive;
+import javax.validation.constraints.Size;
 import java.util.Collection;
 import java.util.List;
 
@@ -55,10 +56,10 @@ public class FilmController {
         service.deleteLike(id, userId);
     }
 
-    @GetMapping("/popular")
-    public List<Film> getMostPopular(@RequestParam(defaultValue = "10") int count) {
-        return service.getMostPopular(count);
-    }
+//    @GetMapping("/popular")
+//    public List<Film> getMostPopular(@RequestParam(defaultValue = "10") int count) {
+//        return service.getMostPopular(count);
+//    }
 
     @DeleteMapping("/{id}")
     public void deleteLike(@PathVariable int id) {
@@ -75,5 +76,10 @@ public class FilmController {
     public List<Film> getDirectorsFilms(@Valid @Positive @PathVariable int directorId,
                                         @Valid @Pattern(regexp = "year|likes") @RequestParam String sortBy) {
         return service.getDirectorsFilms(directorId, sortBy);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> getPopularsGenreAndYear(@RequestParam(defaultValue = "10") int limit, @RequestParam(defaultValue = "-1") int genreId,@RequestParam(defaultValue = "-1") int year){
+        return service.getPopularsGenreAndYear(limit, genreId, year);
     }
 }
