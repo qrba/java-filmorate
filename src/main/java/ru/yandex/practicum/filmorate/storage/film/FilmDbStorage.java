@@ -124,9 +124,8 @@ public class FilmDbStorage implements FilmStorage {
                 "(select user_id from (select user_id, count(user_id) as c from film_likes where film_id in " +
                 "(select film_id from film_likes where user_id = ?) " +
                 "and user_id != ? group by user_id order by c limit 1)) " +
-                "and film_id not in (select film_id from film_likes where user_id = ?) " +
-                "and film_id not in (select film_id from film_likes where user_id = ?))";
-        return jdbcTemplate.query(sqlQuery, this::filmFromRow, userId, userId, userId, userId);
+                "and film_id not in (select film_id from film_likes where user_id = ?)) ";
+        return jdbcTemplate.query(sqlQuery, this::filmFromRow, userId, userId, userId);
     }
 
     private Film filmFromRow(ResultSet rsFilm, int rowNumFilm) throws SQLException {
