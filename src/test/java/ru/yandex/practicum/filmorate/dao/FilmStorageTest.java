@@ -364,4 +364,111 @@ public class FilmStorageTest {
         List<Film> foundFilm = storage.search("searc", "director,title");
         assertEquals(allFilm, foundFilm);
     }
+
+    @Test
+    void shouldGetRecommendations(@Autowired LikeStorage likeStorage) {
+        Film filmToAdd = Film.builder()
+                .name("Film 1")
+                .description("Film 1 is a test entity")
+                .releaseDate(LocalDate.parse("1985-10-20"))
+                .duration(90)
+                .mpa(new RatingMPA(1, "G"))
+                .genres(Collections.emptyList())
+                .directors(Collections.emptyList())
+                .build();
+        Film film1 = storage.add(filmToAdd);
+        filmToAdd = Film.builder()
+                .name("Film 2")
+                .description("Film 2 is a test entity")
+                .releaseDate(LocalDate.parse("1995-10-20"))
+                .duration(190)
+                .mpa(new RatingMPA(5, "NC-17"))
+                .genres(Collections.emptyList())
+                .directors(Collections.emptyList())
+                .build();
+        Film film2 = storage.add(filmToAdd);
+        filmToAdd = Film.builder()
+                .name("Film 2")
+                .description("Film 2 is a test entity")
+                .releaseDate(LocalDate.parse("1995-10-20"))
+                .duration(190)
+                .mpa(new RatingMPA(5, "NC-17"))
+                .genres(Collections.emptyList())
+                .directors(Collections.emptyList())
+                .build();
+        Film film3 = storage.add(filmToAdd);
+        User userToAdd = User.builder()
+                .email("test1@email.com")
+                .login("testLogin1")
+                .name("testUsername1")
+                .birthday(LocalDate.parse("2000-05-25"))
+                .build();
+        User user1 = userStorage.add(userToAdd);
+        userToAdd = User.builder()
+                .email("test2@email.com")
+                .login("testLogin2")
+                .name("testUsername2")
+                .birthday(LocalDate.parse("1987-01-10"))
+                .build();
+        User user2 = userStorage.add(userToAdd);
+        likeStorage.addLike(film2.getId(), user1.getId());
+        likeStorage.addLike(film1.getId(), user1.getId());
+        likeStorage.addLike(film1.getId(), user2.getId());
+        List<Film> recommendations = storage.getRecommendations(user2.getId());
+        assertEquals(1, recommendations.size());
+        assertEquals(film2, recommendations.get(0));
+    }
+
+    @Test
+    void shouldGetRecommendationsEmptyList(@Autowired LikeStorage likeStorage) {
+        Film filmToAdd = Film.builder()
+                .name("Film 1")
+                .description("Film 1 is a test entity")
+                .releaseDate(LocalDate.parse("1985-10-20"))
+                .duration(90)
+                .mpa(new RatingMPA(1, "G"))
+                .genres(Collections.emptyList())
+                .directors(Collections.emptyList())
+                .build();
+        Film film1 = storage.add(filmToAdd);
+        filmToAdd = Film.builder()
+                .name("Film 2")
+                .description("Film 2 is a test entity")
+                .releaseDate(LocalDate.parse("1995-10-20"))
+                .duration(190)
+                .mpa(new RatingMPA(5, "NC-17"))
+                .genres(Collections.emptyList())
+                .directors(Collections.emptyList())
+                .build();
+        Film film2 = storage.add(filmToAdd);
+        filmToAdd = Film.builder()
+                .name("Film 2")
+                .description("Film 2 is a test entity")
+                .releaseDate(LocalDate.parse("1995-10-20"))
+                .duration(190)
+                .mpa(new RatingMPA(5, "NC-17"))
+                .genres(Collections.emptyList())
+                .directors(Collections.emptyList())
+                .build();
+        Film film3 = storage.add(filmToAdd);
+        User userToAdd = User.builder()
+                .email("test1@email.com")
+                .login("testLogin1")
+                .name("testUsername1")
+                .birthday(LocalDate.parse("2000-05-25"))
+                .build();
+        User user1 = userStorage.add(userToAdd);
+        userToAdd = User.builder()
+                .email("test2@email.com")
+                .login("testLogin2")
+                .name("testUsername2")
+                .birthday(LocalDate.parse("1987-01-10"))
+                .build();
+        User user2 = userStorage.add(userToAdd);
+        likeStorage.addLike(film1.getId(), user1.getId());
+        likeStorage.addLike(film1.getId(), user2.getId());
+        List<Film> recommendations = storage.getRecommendations(user2.getId());
+
+        assertEquals(0, recommendations.size());
+    }
 }
