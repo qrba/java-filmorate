@@ -471,4 +471,32 @@ public class FilmStorageTest {
 
         assertEquals(0, recommendations.size());
     }
+
+    @Test
+    void shouldGetDirectorsFilms() {
+        Director director = new Director(1, "Test name");
+        Film film1 = Film.builder()
+                .name("Film 1")
+                .description("Film 1 is a test entity")
+                .releaseDate(LocalDate.parse("1985-10-20"))
+                .duration(90)
+                .mpa(new RatingMPA(1, "G"))
+                .genres(Collections.emptyList())
+                .directors(List.of(director))
+                .build();
+        Film film2 = Film.builder()
+                .name("Film 2")
+                .description("Film 2 is a test entity")
+                .releaseDate(LocalDate.parse("1996-10-20"))
+                .duration(190)
+                .mpa(new RatingMPA(5, "NC-17"))
+                .genres(Collections.emptyList())
+                .directors(List.of(director))
+                .build();
+        directorStorage.addDirector(director);
+        storage.add(film1);
+        storage.add(film2);
+
+        assertEquals(2, storage.getDirectorsFilms(1, "yaer").size());
+    }
 }
