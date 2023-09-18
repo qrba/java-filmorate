@@ -118,15 +118,27 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(sqlQuery, this::filmFromRow, userId, friendId);
     }
 
+    /*
+        Поиск по названию фильма или по режиссеру
+     */
+    @Override
+    public List<Film> search(String query, String by) {
+        String[] splitSearchParameter = by.split(",");
+        if (splitSearchParameter.length == 2) {
+            return jdbcTemplate.query(getSqlQuery(by), this::filmFromRow, query, query);
+        } else {
+            return jdbcTemplate.query(getSqlQuery(by), this::filmFromRow, query);
+        }
+    }
+
     @Override
     public List<Film> getRecommendations(int userId) {
         String sqlQuery = "select * from films where id in (select film_id from film_likes where user_id in " +
                 "(select user_id from (select user_id, count(user_id) as c from film_likes where film_id in " +
                 "(select film_id from film_likes where user_id = ?) " +
                 "and user_id != ? group by user_id order by c limit 1)) " +
-                "and film_id not in (select film_id from film_likes where user_id = ?) " +
-                "and film_id not in (select film_id from film_likes where user_id = ?))";
-        return jdbcTemplate.query(sqlQuery, this::filmFromRow, userId, userId, userId, userId);
+                "and film_id not in (select film_id from film_likes where user_id = ?)) ";
+        return jdbcTemplate.query(sqlQuery, this::filmFromRow, userId, userId, userId);
     }
 
     @Override
@@ -180,5 +192,27 @@ public class FilmDbStorage implements FilmStorage {
         values.put("duration", film.getDuration());
         values.put("mpa_id", film.getMpa().getId());
         return values;
+    }
+
+    /*
+        Определение параметра для фильтрации
+     */
+    private String getSqlQuery(String searchParameter) {
+        String condition;
+        if (searchParameter.equals("director")) {
+            condition = "WHERE d.name ILIKE '%'||?||'%' ";
+        } else if (searchParameter.equals("title")) {
+            condition = "WHERE f.name ILIKE '%'||?||'%' ";
+        } else {
+            condition = "WHERE d.name ILIKE '%'||?||'%' OR f.name ILIKE '%'||?||'%' ";
+        }
+        return "SELECT f.* " +
+                "FROM films AS f " +
+                "LEFT JOIN film_likes AS fl ON fl.film_id=f.id " +
+                "LEFT JOIN director_films AS df ON df.film_id=f.id " +
+                "LEFT JOIN directors AS d ON d.id=df.director_id " +
+                condition +
+                "GROUP BY f.id " +
+                "ORDER BY COUNT(fl.film_id) DESC";
     }
 }

@@ -61,6 +61,10 @@ public class FilmService {
         return storage.getDirectorsFilms(directorId, sortBy);
     }
 
+    public List<Film> searchFilms(String query, String by) {
+        return storage.search(query, by);
+    }
+
     public void delete(int id) {
         storage.delete(id);
     }
