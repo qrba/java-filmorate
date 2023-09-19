@@ -2,12 +2,16 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.reviewlikes.ReviewLikesStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -17,18 +21,43 @@ public class ReviewService {
     private final ReviewLikesStorage reviewLikesStorage;
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final FeedStorage feedStorage;
 
     public Review add(Review review) {
         filmStorage.getFilmById(review.getFilmId());
         userStorage.getUserById(review.getUserId());
-        return reviewStorage.add(review);
+        Review addedReview = reviewStorage.add(review);
+        feedStorage.addEvent(Event.builder()
+                .userId(addedReview.getUserId())
+                .eventType("REVIEW")
+                .operation("ADD")
+                .entityId(review.getReviewId())
+                .timestamp(Date.from(Instant.now()))
+                .build());
+        return addedReview;
     }
 
     public Review update(Review review) {
-        return reviewStorage.update(review);
+        Review addedReview = reviewStorage.update(review);
+        feedStorage.addEvent(Event.builder()
+                .userId(addedReview.getUserId())
+                .eventType("REVIEW")
+                .operation("UPDATE")
+                .entityId(addedReview.getReviewId())
+                .timestamp(Date.from(Instant.now()))
+                .build());
+        return addedReview;
     }
 
     public void delete(int id) {
+        Review review = reviewStorage.getReviewById(id);
+        feedStorage.addEvent(Event.builder()
+                .userId(review.getUserId())
+                .eventType("REVIEW")
+                .operation("REMOVE")
+                .entityId(review.getReviewId())
+                .timestamp(Date.from(Instant.now()))
+                .build());
         reviewStorage.delete(id);
     }
 

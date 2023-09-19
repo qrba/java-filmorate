@@ -3,12 +3,17 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
+import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -19,10 +24,10 @@ public class FilmService {
 
     @Qualifier("databaseUser")
     private final UserStorage userStorage;
-
     private final LikeStorage likeStorage;
-
     private final DirectorStorage directorStorage;
+    private final GenreStorage genreStorage;
+    private final FeedStorage feedStorage;
 
     public List<Film> getFilms() {
         return storage.getAll();
@@ -40,16 +45,26 @@ public class FilmService {
         storage.getFilmById(filmId);
         userStorage.getUserById(userId);
         likeStorage.addLike(filmId, userId);
+        feedStorage.addEvent(Event.builder()
+                .userId(userId)
+                .eventType("LIKE")
+                .operation("ADD")
+                .entityId(filmId)
+                .timestamp(Date.from(Instant.now()))
+                .build());
     }
 
     public void deleteLike(int filmId, int userId) {
         storage.getFilmById(filmId);
         userStorage.getUserById(userId);
         likeStorage.deleteLike(filmId, userId);
-    }
-
-    public List<Film> getMostPopular(int size) {
-        return storage.getMostPopular(size);
+        feedStorage.addEvent(Event.builder()
+                .userId(userId)
+                .eventType("LIKE")
+                .operation("REMOVE")
+                .entityId(filmId)
+                .timestamp(Date.from(Instant.now()))
+                .build());
     }
 
     public Film getFilmById(int id) {
@@ -81,6 +96,9 @@ public class FilmService {
     }
 
     public List<Film> getPopularsGenreAndYear(int limit, int genreId, int year) {
+        if (genreId != -1) {
+            genreStorage.getGenreById(genreId);
+        }
         return storage.getPopularsGenreAndYear(limit, genreId, year);
     }
 }
