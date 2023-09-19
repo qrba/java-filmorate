@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.storage.reviewlikes.ReviewLikesStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -25,37 +26,39 @@ public class ReviewService {
     public Review add(Review review) {
         filmStorage.getFilmById(review.getFilmId());
         userStorage.getUserById(review.getUserId());
+        Review addedReview = reviewStorage.add(review);
         feedStorage.addEvent(Event.builder()
-                .userId(review.getUserId())
+                .userId(addedReview.getUserId())
                 .eventType("REVIEW")
                 .operation("ADD")
                 .entityId(review.getReviewId())
-                .timestamp(Instant.now())
+                .timestamp(Date.from(Instant.now()))
                 .build());
-        return reviewStorage.add(review);
+        return addedReview;
     }
 
     public Review update(Review review) {
+        Review addedReview = reviewStorage.update(review);
         feedStorage.addEvent(Event.builder()
-                .userId(review.getUserId())
+                .userId(addedReview.getUserId())
                 .eventType("REVIEW")
                 .operation("UPDATE")
-                .entityId(review.getReviewId())
-                .timestamp(Instant.now())
-                .build());;
-        return reviewStorage.update(review);
+                .entityId(addedReview.getReviewId())
+                .timestamp(Date.from(Instant.now()))
+                .build());
+        return addedReview;
     }
 
     public void delete(int id) {
         Review review = reviewStorage.getReviewById(id);
-        reviewStorage.delete(id);
         feedStorage.addEvent(Event.builder()
                 .userId(review.getUserId())
                 .eventType("REVIEW")
                 .operation("REMOVE")
                 .entityId(review.getReviewId())
-                .timestamp(Instant.now())
+                .timestamp(Date.from(Instant.now()))
                 .build());
+        reviewStorage.delete(id);
     }
 
     public Review getReviewById(int id) {

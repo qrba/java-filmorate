@@ -36,7 +36,7 @@ public class FeedDbStorage implements FeedStorage {
                 .operation(rs.getString("operation"))
                 .eventId(rs.getInt("id"))
                 .entityId(rs.getInt("entity_id"))
-                .timestamp(rs.getTimestamp("timestamp").toInstant())
+                .timestamp(rs.getTimestamp("timestamp"))
                 .build();
     }
 

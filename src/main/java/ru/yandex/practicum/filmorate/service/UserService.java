@@ -46,7 +46,7 @@ public class UserService {
                 .eventType("FRIEND")
                 .operation("ADD")
                 .entityId(friendId)
-                .timestamp(Instant.now())
+                .timestamp(Date.from(Instant.now()))
                 .build());
 
     }
@@ -60,7 +60,7 @@ public class UserService {
                 .eventType("FRIEND")
                 .operation("REMOVE")
                 .entityId(friendId)
-                .timestamp(Instant.now())
+                .timestamp(Date.from(Instant.now()))
                 .build());
     }
 
@@ -83,8 +83,9 @@ public class UserService {
         storage.getUserById(userId);
         return filmService.getRecommendations(userId);
     }
-   public List<Event> getUserFeed(int userId) {
+
+    public List<Event> getUserFeed(int userId) {
         getUserById(userId);
         return feedStorage.getUserFeed(userId);
-   }
+    }
 }

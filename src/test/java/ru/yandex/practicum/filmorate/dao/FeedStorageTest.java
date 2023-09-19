@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.dao;
 
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,16 +10,16 @@ import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
+import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
-import static org.assertj.core.util.DateUtil.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @AutoConfigureTestDatabase
@@ -31,6 +30,8 @@ public class FeedStorageTest {
     private final FeedStorage feedStorage;
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+    private final ReviewStorage reviewStorage;
+    private final LikeStorage likeStorage;
     private Film filmToAdd;
     private User userToAdd;
     private User user2ToAdd;
@@ -74,10 +75,56 @@ public class FeedStorageTest {
                 .eventType("LIKE")
                 .operation("ADD")
                 .entityId(user2ToAdd.getId())
-                .timestamp(Instant.now())
+                .timestamp(Date.from(Instant.now()))
                 .build();
         feedStorage.addEvent(event);
         assertEquals(List.of(event), feedStorage.getUserFeed(1));
     }
+
+    @Test
+    void shouldUpdateReviewEvent() {
+        Review review = Review.builder()
+                .reviewId(1)
+                .content("review")
+                .isPositive(false)
+                .filmId(1)
+                .userId(userToAdd.getId())
+                .build();
+        reviewStorage.add(review);
+        Review updReview = Review.builder()
+                .reviewId(1)
+                .content("NEW review")
+                .isPositive(false)
+                .filmId(1)
+                .userId(userToAdd.getId())
+                .build();
+        reviewStorage.update(updReview);
+        Event event = Event.builder()
+                .eventId(1)
+                .userId(userToAdd.getId())
+                .eventType("REVIEW")
+                .operation("UPDATE")
+                .entityId(review.getReviewId())
+                .timestamp(Date.from(Instant.now()))
+                .build();
+        feedStorage.addEvent(event);
+        assertEquals(List.of(event), feedStorage.getUserFeed(1));
+    }
+
+    @Test
+    void shouldDeleteLikeEvent() {
+        Event event = Event.builder()
+                .eventId(1)
+                .userId(userToAdd.getId())
+                .eventType("LIKE")
+                .operation("DELETE")
+                .entityId(filmToAdd.getId())
+                .timestamp(Date.from(Instant.now()))
+                .build();
+        likeStorage.deleteLike(filmToAdd.getId(), userToAdd.getId());
+        feedStorage.addEvent(event);
+        assertEquals(List.of(event), feedStorage.getUserFeed(1));
+    }
 }
+
 

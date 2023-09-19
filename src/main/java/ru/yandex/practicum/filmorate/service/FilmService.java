@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -50,7 +51,7 @@ public class FilmService {
                 .eventType("LIKE")
                 .operation("ADD")
                 .entityId(filmId)
-                .timestamp(Instant.now())
+                .timestamp(Date.from(Instant.now()))
                 .build());
     }
 
@@ -63,12 +64,8 @@ public class FilmService {
                 .eventType("LIKE")
                 .operation("REMOVE")
                 .entityId(filmId)
-                .timestamp(Instant.now())
+                .timestamp(Date.from(Instant.now()))
                 .build());
-    }
-
-    public List<Film> getMostPopular(int size) {
-        return storage.getMostPopular(size);
     }
 
     public Film getFilmById(int id) {
@@ -100,7 +97,9 @@ public class FilmService {
     }
 
     public List<Film> getPopularsGenreAndYear(int limit, int genreId, int year) {
-        genreStorage.getGenreById(genreId);
+        if (genreId != -1) {
+            genreStorage.getGenreById(genreId);
+        }
         return storage.getPopularsGenreAndYear(limit, genreId, year);
     }
 }
