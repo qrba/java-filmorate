@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -19,10 +18,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class FilmService {
-    @Qualifier("databaseFilm")
     private final FilmStorage storage;
-
-    @Qualifier("databaseUser")
     private final UserStorage userStorage;
     private final LikeStorage likeStorage;
     private final DirectorStorage directorStorage;

@@ -4,15 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
-import ru.yandex.practicum.filmorate.model.RatingMPA;
-import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.RatingMPA;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
@@ -30,14 +29,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class FilmStorageTest {
-    @Qualifier("databaseFilm")
     private final FilmStorage storage;
-
-    @Qualifier("databaseUser")
     private final UserStorage userStorage;
-
-    @Qualifier("dbDirector")
     private final DirectorStorage directorStorage;
+    private final LikeStorage likeStorage;
 
     @Test
     void shouldGetAll() {
@@ -162,7 +157,7 @@ public class FilmStorageTest {
     }
 
     @Test
-    void shouldGetMostPopular(@Autowired LikeStorage likeStorage) {
+    void shouldGetMostPopular() {
         Film filmToAdd = Film.builder()
                 .name("Film 1")
                 .description("Film 1 is a test entity")
@@ -222,7 +217,7 @@ public class FilmStorageTest {
     }
 
     @Test
-    void shouldGetCommonFilms(@Autowired LikeStorage likeStorage) {
+    void shouldGetCommonFilms() {
         Film filmToAdd = Film.builder()
                 .name("Film")
                 .description("Film is a test entity")
@@ -366,7 +361,7 @@ public class FilmStorageTest {
     }
 
     @Test
-    void shouldGetRecommendations(@Autowired LikeStorage likeStorage) {
+    void shouldGetRecommendations() {
         Film filmToAdd = Film.builder()
                 .name("Film 1")
                 .description("Film 1 is a test entity")
@@ -420,7 +415,7 @@ public class FilmStorageTest {
     }
 
     @Test
-    void shouldGetRecommendationsEmptyList(@Autowired LikeStorage likeStorage) {
+    void shouldGetRecommendationsEmptyList() {
         Film filmToAdd = Film.builder()
                 .name("Film 1")
                 .description("Film 1 is a test entity")

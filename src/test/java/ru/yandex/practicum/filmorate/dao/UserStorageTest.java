@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
@@ -22,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class UserStorageTest {
-    @Qualifier("databaseUser")
     private final UserStorage storage;
 
     @Test
@@ -127,7 +125,7 @@ public class UserStorageTest {
     }
 
     @Test
-    void shouldAddDeleteGetFriend(@Qualifier("databaseUser") UserStorage userStorage) {
+    void shouldAddDeleteGetFriend() {
         User userToAdd = User.builder()
                 .email("test1@email.com")
                 .login("testLogin1")
@@ -150,7 +148,7 @@ public class UserStorageTest {
     }
 
     @Test
-    void shouldGetCommonFriends(@Qualifier("databaseUser") UserStorage userStorage) {
+    void shouldGetCommonFriends() {
         User userToAdd = User.builder()
                 .email("test1@email.com")
                 .login("testLogin1")
@@ -198,7 +196,6 @@ public class UserStorageTest {
                     storage.getUserById(id);
                 }
         );
-
         assertEquals("Пользователь с id=1 не найден.", e.getMessage());
     }
 }

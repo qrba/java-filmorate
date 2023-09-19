@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
@@ -27,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class GenreStorageTest {
     private final GenreStorage storage;
+    private final FilmStorage filmStorage;
 
     @Test
     void shouldGetAll() {
@@ -81,7 +81,7 @@ public class GenreStorageTest {
     }
 
     @Test
-    void shouldAddDeleteGetFilmGenres(@Qualifier("databaseFilm") FilmStorage filmStorage) {
+    void shouldAddDeleteGetFilmGenres() {
         Film film = Film.builder()
                 .name("Film")
                 .description("Film is a test entity")
