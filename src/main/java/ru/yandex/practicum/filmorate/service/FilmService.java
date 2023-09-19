@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
+import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
@@ -21,11 +22,10 @@ public class FilmService {
 
     @Qualifier("databaseUser")
     private final UserStorage userStorage;
-
     private final LikeStorage likeStorage;
-
     private final DirectorStorage directorStorage;
     private final GenreStorage genreStorage;
+    private final FeedStorage feedStorage;
 
     public List<Film> getFilms() {
         return storage.getAll();
@@ -43,12 +43,14 @@ public class FilmService {
         storage.getFilmById(filmId);
         userStorage.getUserById(userId);
         likeStorage.addLike(filmId, userId);
+        feedStorage.addEvent(userId, "LIKE", "ADD",filmId);
     }
 
     public void deleteLike(int filmId, int userId) {
         storage.getFilmById(filmId);
         userStorage.getUserById(userId);
         likeStorage.deleteLike(filmId, userId);
+        feedStorage.addEvent(userId, "LIKE", "REMOVE",filmId);
     }
 
     public List<Film> getMostPopular(int size) {
