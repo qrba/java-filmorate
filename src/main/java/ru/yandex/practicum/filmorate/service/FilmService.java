@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -23,6 +25,7 @@ public class FilmService {
     private final LikeStorage likeStorage;
 
     private final DirectorStorage directorStorage;
+    private final GenreStorage genreStorage;
 
     public List<Film> getFilms() {
         return storage.getAll();
@@ -81,6 +84,7 @@ public class FilmService {
     }
 
     public List<Film> getPopularsGenreAndYear(int limit, int genreId, int year) {
+        genreStorage.getGenreById(genreId);
         return storage.getPopularsGenreAndYear(limit, genreId, year);
     }
 }
