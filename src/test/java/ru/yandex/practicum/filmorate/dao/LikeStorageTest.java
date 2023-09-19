@@ -27,6 +27,7 @@ public class LikeStorageTest {
     private final LikeStorage storage;
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
+
     @Test
     void shouldAddDeleteGetLikes() {
         Film film = Film.builder()
