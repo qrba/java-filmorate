@@ -191,7 +191,7 @@ public class FilmStorageTest {
                 .build();
         User user = userStorage.add(userToAdd);
         likeStorage.addLike(film2.getId(), user.getId());
-        List<Film> mostPopular = storage.getMostPopular(10);
+        List<Film> mostPopular = storage.getPopularsGenreAndYear(10, -1, -1);
 
         assertEquals(film2, mostPopular.get(0));
         assertEquals(film1, mostPopular.get(1));

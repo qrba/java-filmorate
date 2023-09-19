@@ -141,6 +141,36 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcTemplate.query(sqlQuery, this::filmFromRow, userId, userId, userId);
     }
 
+    @Override
+    public List<Film> getPopularsGenreAndYear(int limit, int genreId, int year) {
+        String sqlQuery;
+        if (genreId == -1 && year == -1) {
+            return getMostPopular(limit);
+        }
+        if (genreId == -1) {
+            sqlQuery = "select f.* from films as f " +
+                    "left join film_likes as l on f.id = l.film_id " +
+                    "where extract(year from cast(f.release_date AS date)) = ? " +
+                    "group by f.id order by count(l.film_id) desc limit ?";
+            return jdbcTemplate.query(sqlQuery, this::filmFromRow, year, limit);
+        }
+        if (year == -1) {
+            sqlQuery = "select f.* from films as f " +
+                    "left join film_likes as l on f.id = l.film_id " +
+                    "left join film_genres as fg on f.id = fg.film_id " +
+                    "where fg.genre_id = ? " +
+                    "group by f.id order by count(l.film_id) desc limit ?";
+            return jdbcTemplate.query(sqlQuery, this::filmFromRow, genreId, limit);
+        }
+        sqlQuery = "select f.* from films as f " +
+                "left join film_likes as l on f.id = l.film_id " +
+                "left join film_genres as fg on f.id = fg.film_id " +
+                "where fg.genre_id = ? " +
+                "and extract(year from cast(f.release_date AS date)) = ? " +
+                "group by f.id order by count(l.film_id) desc limit ?";
+        return jdbcTemplate.query(sqlQuery, this::filmFromRow, genreId, year, limit);
+    }
+
     private Film filmFromRow(ResultSet rsFilm, int rowNumFilm) throws SQLException {
         return Film.builder()
                 .id(rsFilm.getInt("id"))

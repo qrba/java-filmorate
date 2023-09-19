@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -56,11 +55,6 @@ public class FilmController {
         service.deleteLike(id, userId);
     }
 
-    @GetMapping("/popular")
-    public List<Film> getMostPopular(@RequestParam(defaultValue = "10") int count) {
-        return service.getMostPopular(count);
-    }
-
     @DeleteMapping("/{id}")
     public void deleteLike(@PathVariable int id) {
         service.delete(id);
@@ -76,6 +70,13 @@ public class FilmController {
     public List<Film> getDirectorsFilms(@Valid @Positive @PathVariable int directorId,
                                         @Valid @Pattern(regexp = "year|likes") @RequestParam String sortBy) {
         return service.getDirectorsFilms(directorId, sortBy);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> getPopularsGenreAndYear(@RequestParam(value = "count", defaultValue = "10") int limit,
+                                              @RequestParam(defaultValue = "-1") int genreId,
+                                              @RequestParam(defaultValue = "-1") int year) {
+        return service.getPopularsGenreAndYear(limit, genreId, year);
     }
 
     @GetMapping("/search")
