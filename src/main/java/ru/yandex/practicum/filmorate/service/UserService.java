@@ -9,6 +9,8 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -39,14 +41,27 @@ public class UserService {
         getUserById(userId);
         getUserById(friendId);
         storage.addFriend(userId, friendId);
-        feedStorage.addEvent(userId, "FRIEND", "ADD",friendId);
+        feedStorage.addEvent(Event.builder()
+                .userId(userId)
+                .eventType("FRIEND")
+                .operation("ADD")
+                .entityId(friendId)
+                .timestamp(Instant.now())
+                .build());
+
     }
 
     public void deleteFriend(int userId, int friendId) {
         getUserById(userId);
         getUserById(friendId);
         storage.deleteFriend(userId, friendId);
-        feedStorage.addEvent(userId, "FRIEND", "REMOVE",friendId);
+        feedStorage.addEvent(Event.builder()
+                .userId(userId)
+                .eventType("FRIEND")
+                .operation("REMOVE")
+                .entityId(friendId)
+                .timestamp(Instant.now())
+                .build());
     }
 
     public List<User> getFriends(int id) {

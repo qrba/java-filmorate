@@ -1,40 +1,58 @@
 package ru.yandex.practicum.filmorate.storage.feed;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Event;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Instant;
-import java.util.Date;
-import java.util.List;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class FeedDbStorage implements FeedStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public void addEvent(int userId, String eventType, String operation, int entityId) {
-        String sql = "INSERT INTO events (user_id, timestamp, event_type, operation, entity_id) " +
-                "VALUES (?,?,?,?,?)";
-        jdbcTemplate.update(sql, userId, Date.from(Instant.now()), eventType, operation, entityId);
+    public void addEvent(Event event) {
+        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("events")
+                .usingGeneratedKeyColumns("id");
+        simpleJdbcInsert.executeAndReturnKey(feedToRow(event)).intValue();
     }
-    private Event createFeed(ResultSet rs, int rowNum) throws SQLException {
-            return Event.builder()
-                    .userId(rs.getInt("user_id"))
-                    .eventType(rs.getString("event_type"))
-                    .operation(rs.getString("operation"))
-                    .eventId(rs.getInt("id"))
-                    .entityId(rs.getInt("entity_id"))
-                    .timestamp(rs.getTimestamp("timestamp"))
-                    .build();
-        }
+
+    private Event rowToFeed(ResultSet rs, int rowNum) throws SQLException {
+        return Event.builder()
+                .userId(rs.getInt("user_id"))
+                .eventType(rs.getString("event_type"))
+                .operation(rs.getString("operation"))
+                .eventId(rs.getInt("id"))
+                .entityId(rs.getInt("entity_id"))
+                .timestamp(rs.getTimestamp("timestamp").toInstant())
+                .build();
+    }
+
+    private Map<String, Object> feedToRow(Event event) {
+        Map<String, Object> values = new HashMap<>();
+        values.put("timestamp", event.getTimestamp());
+        values.put("user_id", event.getUserId());
+        values.put("event_type", event.getEventType());
+        values.put("operation", event.getOperation());
+        values.put("entity_id", event.getEntityId());
+        return values;
+    }
+
     @Override
     public List<Event> getUserFeed(Integer userId) {
         String sqlQuery = "SELECT * FROM events WHERE user_id = ?";
-        return jdbcTemplate.query(sqlQuery, this::createFeed, userId);
+        return jdbcTemplate.query(sqlQuery, this::rowToFeed, userId);
     }
 }

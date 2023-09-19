@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
@@ -9,6 +10,7 @@ import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 import ru.yandex.practicum.filmorate.storage.reviewlikes.ReviewLikesStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -23,19 +25,37 @@ public class ReviewService {
     public Review add(Review review) {
         filmStorage.getFilmById(review.getFilmId());
         userStorage.getUserById(review.getUserId());
-        feedStorage.addEvent(review.getUserId(), "REVIEW", "ADD",review.getReviewId());
+        feedStorage.addEvent(Event.builder()
+                .userId(review.getUserId())
+                .eventType("REVIEW")
+                .operation("ADD")
+                .entityId(review.getReviewId())
+                .timestamp(Instant.now())
+                .build());
         return reviewStorage.add(review);
     }
 
     public Review update(Review review) {
-        feedStorage.addEvent(review.getUserId(), "REVIEW", "UPDATE",review.getReviewId());
+        feedStorage.addEvent(Event.builder()
+                .userId(review.getUserId())
+                .eventType("REVIEW")
+                .operation("UPDATE")
+                .entityId(review.getReviewId())
+                .timestamp(Instant.now())
+                .build());;
         return reviewStorage.update(review);
     }
 
     public void delete(int id) {
         Review review = reviewStorage.getReviewById(id);
         reviewStorage.delete(id);
-        feedStorage.addEvent(review.getUserId(), "REVIEW", "REMOVE",id);
+        feedStorage.addEvent(Event.builder()
+                .userId(review.getUserId())
+                .eventType("REVIEW")
+                .operation("REMOVE")
+                .entityId(review.getReviewId())
+                .timestamp(Instant.now())
+                .build());
     }
 
     public Review getReviewById(int id) {

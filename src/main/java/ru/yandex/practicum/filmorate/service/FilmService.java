@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
@@ -12,6 +13,7 @@ import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -43,14 +45,26 @@ public class FilmService {
         storage.getFilmById(filmId);
         userStorage.getUserById(userId);
         likeStorage.addLike(filmId, userId);
-        feedStorage.addEvent(userId, "LIKE", "ADD",filmId);
+        feedStorage.addEvent(Event.builder()
+                .userId(userId)
+                .eventType("LIKE")
+                .operation("ADD")
+                .entityId(filmId)
+                .timestamp(Instant.now())
+                .build());
     }
 
     public void deleteLike(int filmId, int userId) {
         storage.getFilmById(filmId);
         userStorage.getUserById(userId);
         likeStorage.deleteLike(filmId, userId);
-        feedStorage.addEvent(userId, "LIKE", "REMOVE",filmId);
+        feedStorage.addEvent(Event.builder()
+                .userId(userId)
+                .eventType("LIKE")
+                .operation("REMOVE")
+                .entityId(filmId)
+                .timestamp(Instant.now())
+                .build());
     }
 
     public List<Film> getMostPopular(int size) {
