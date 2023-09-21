@@ -24,8 +24,7 @@ public class ReviewService {
     private final FeedStorage feedStorage;
 
     public Review add(Review review) {
-        filmStorage.getFilmById(review.getFilmId());
-        userStorage.getUserById(review.getUserId());
+        validateUserAndFilm(review);
         Review addedReview = reviewStorage.add(review);
         feedStorage.addEvent(Event.builder()
                 .userId(addedReview.getUserId())
@@ -38,6 +37,7 @@ public class ReviewService {
     }
 
     public Review update(Review review) {
+        validateUserAndFilm(review);
         Review addedReview = reviewStorage.update(review);
         feedStorage.addEvent(Event.builder()
                 .userId(addedReview.getUserId())
@@ -88,5 +88,10 @@ public class ReviewService {
     public void deleteDislike(int reviewId, int userId) {
         userStorage.getUserById(userId);
         reviewLikesStorage.deleteLike(reviewId, userId, false);
+    }
+
+    private void validateUserAndFilm(Review review) {
+        filmStorage.getFilmById(review.getFilmId());
+        userStorage.getUserById(review.getUserId());
     }
 }

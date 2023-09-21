@@ -67,7 +67,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteLike(@PathVariable int id) {
+    public void deleteUser(@PathVariable int id) {
         service.delete(id);
     }
 
