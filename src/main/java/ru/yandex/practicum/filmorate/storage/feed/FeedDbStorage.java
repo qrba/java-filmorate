@@ -2,15 +2,15 @@ package ru.yandex.practicum.filmorate.storage.feed;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.EventOperation;
+import ru.yandex.practicum.filmorate.model.EventType;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,11 +32,11 @@ public class FeedDbStorage implements FeedStorage {
     private Event rowToFeed(ResultSet rs, int rowNum) throws SQLException {
         return Event.builder()
                 .userId(rs.getInt("user_id"))
-                .eventType(rs.getString("event_type"))
-                .operation(rs.getString("operation"))
+                .eventType(EventType.valueOf(rs.getString("event_type")))
+                .operation(EventOperation.valueOf(rs.getString("operation")))
                 .eventId(rs.getInt("id"))
                 .entityId(rs.getInt("entity_id"))
-                .timestamp(rs.getTimestamp("timestamp"))
+                .timestamp(rs.getLong("timestamp"))
                 .build();
     }
 

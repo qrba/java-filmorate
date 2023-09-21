@@ -7,7 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import ru.yandex.practicum.filmorate.model.*;
+import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.EventOperation;
+import ru.yandex.practicum.filmorate.model.EventType;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.RatingMPA;
+import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
@@ -17,7 +23,6 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -72,10 +77,10 @@ public class FeedStorageTest {
         Event event = Event.builder()
                 .eventId(1)
                 .userId(userToAdd.getId())
-                .eventType("LIKE")
-                .operation("ADD")
+                .eventType(EventType.LIKE)
+                .operation(EventOperation.ADD)
                 .entityId(user2ToAdd.getId())
-                .timestamp(Date.from(Instant.now()))
+                .timestamp(Instant.now().toEpochMilli())
                 .build();
         feedStorage.addEvent(event);
         assertEquals(List.of(event), feedStorage.getUserFeed(1));
@@ -102,10 +107,10 @@ public class FeedStorageTest {
         Event event = Event.builder()
                 .eventId(1)
                 .userId(userToAdd.getId())
-                .eventType("REVIEW")
-                .operation("UPDATE")
+                .eventType(EventType.REVIEW)
+                .operation(EventOperation.UPDATE)
                 .entityId(review.getReviewId())
-                .timestamp(Date.from(Instant.now()))
+                .timestamp(Instant.now().toEpochMilli())
                 .build();
         feedStorage.addEvent(event);
         assertEquals(List.of(event), feedStorage.getUserFeed(1));
@@ -116,10 +121,10 @@ public class FeedStorageTest {
         Event event = Event.builder()
                 .eventId(1)
                 .userId(userToAdd.getId())
-                .eventType("LIKE")
-                .operation("DELETE")
+                .eventType(EventType.LIKE)
+                .operation(EventOperation.REMOVE)
                 .entityId(filmToAdd.getId())
-                .timestamp(Date.from(Instant.now()))
+                .timestamp(Instant.now().toEpochMilli())
                 .build();
         likeStorage.deleteLike(filmToAdd.getId(), userToAdd.getId());
         feedStorage.addEvent(event);

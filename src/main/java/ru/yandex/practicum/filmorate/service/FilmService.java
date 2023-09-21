@@ -3,6 +3,8 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Event;
+import ru.yandex.practicum.filmorate.model.EventOperation;
+import ru.yandex.practicum.filmorate.model.EventType;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
@@ -12,7 +14,6 @@ import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -41,26 +42,14 @@ public class FilmService {
         storage.getFilmById(filmId);
         userStorage.getUserById(userId);
         likeStorage.addLike(filmId, userId);
-        feedStorage.addEvent(Event.builder()
-                .userId(userId)
-                .eventType("LIKE")
-                .operation("ADD")
-                .entityId(filmId)
-                .timestamp(Date.from(Instant.now()))
-                .build());
+        addEvent(userId, EventOperation.ADD, filmId);
     }
 
     public void deleteLike(int filmId, int userId) {
         storage.getFilmById(filmId);
         userStorage.getUserById(userId);
         likeStorage.deleteLike(filmId, userId);
-        feedStorage.addEvent(Event.builder()
-                .userId(userId)
-                .eventType("LIKE")
-                .operation("REMOVE")
-                .entityId(filmId)
-                .timestamp(Date.from(Instant.now()))
-                .build());
+        addEvent(userId, EventOperation.REMOVE, filmId);
     }
 
     public Film getFilmById(int id) {
@@ -97,5 +86,15 @@ public class FilmService {
             genreStorage.getGenreById(genreId);
         }
         return storage.getPopularsGenreAndYear(limit, genreId, year);
+    }
+
+    private void addEvent(int userId, EventOperation operation, int eventId) {
+        feedStorage.addEvent(Event.builder()
+                .userId(userId)
+                .eventType(EventType.LIKE)
+                .operation(operation)
+                .entityId(eventId)
+                .timestamp(Instant.now().toEpochMilli())
+                .build());
     }
 }
