@@ -88,6 +88,7 @@ public class FilmService {
     }
 
     public List<Film> getRecommendations(int userId) {
+        userStorage.getUserById(userId);
         return storage.getRecommendations(userId);
     }
 

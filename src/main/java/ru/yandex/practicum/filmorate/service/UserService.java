@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Event;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -16,7 +15,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserService {
     private final UserStorage storage;
-    private final FilmService filmService;
     private final FeedStorage feedStorage;
 
     public List<User> getUsers() {
@@ -75,11 +73,6 @@ public class UserService {
 
     public void delete(int id) {
         storage.delete(id);
-    }
-
-    public List<Film> getRecommendations(int userId) {
-        storage.getUserById(userId);
-        return filmService.getRecommendations(userId);
     }
 
     public List<Event> getUserFeed(int userId) {
