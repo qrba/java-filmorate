@@ -89,12 +89,13 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getDirectorsFilms(int directorId, String sortBy) {
-        String sqlQuerySortedByYear = "select * from films as f where f.id in (select film_id from director_films " +
-                "where director_id = ?) order by extract(year from cast(f.release_date as date))";
+        String sqlQuerySortedByYear = "select * from films as f left join director_films as df " +
+                "on f.id = df.film_id where df.director_id = ? " +
+                "order by extract(year from cast(f.release_date as date))";
 
         String sqlQuerySortedByLikes = "select * from films as f left join film_likes as l on f.id = l.film_id " +
-                "where f.id in (select film_id from director_films where " +
-                "director_id = ?) group by f.id order by count(l.film_id)";
+                "left join director_films as df on f.id = df.film_id where df.director_id = ? " +
+                "group by f.id order by count(l.film_id)";
 
         if (sortBy.equals("year")) {
             return jdbcTemplate.query(sqlQuerySortedByYear, this::filmFromRow, directorId);
