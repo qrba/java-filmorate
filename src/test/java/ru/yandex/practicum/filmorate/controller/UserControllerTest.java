@@ -17,7 +17,6 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @AutoConfigureTestDatabase
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -32,8 +31,12 @@ public class UserControllerTest {
 
     @Test
     void shouldAddUser() {
-        User user = new User(1, "test@email.com", "testLogin",
-                "testUsername", LocalDate.parse("2000-05-25"));
+        User user = User.builder()
+                .email("test@email.com")
+                .login("testLogin")
+                .name("testUsername")
+                .birthday(LocalDate.parse("2000-05-25"))
+                .build();
         ResponseEntity<User> response = restTemplate.postForEntity(resource, user, User.class);
         User addedUser = response.getBody();
 
@@ -47,8 +50,11 @@ public class UserControllerTest {
 
     @Test
     void shouldAddUserWhenNoName() {
-        User user = new User(1, "test@email.com", "testLogin",
-                null, LocalDate.parse("2000-05-25"));
+        User user = User.builder()
+                .email("test@email.com")
+                .login("testLogin")
+                .birthday(LocalDate.parse("2000-05-25"))
+                .build();
         ResponseEntity<User> response = restTemplate.postForEntity(resource, user, User.class);
         User addedUser = response.getBody();
 
@@ -63,8 +69,12 @@ public class UserControllerTest {
 
     @Test
     void shouldNotAddUserWhenIncorrectEmail() {
-        User user = new User(1, "incorrectEmail.com", "testLogin",
-                null, LocalDate.parse("2000-05-25"));
+        User user = User.builder()
+                .email("wrongEmail.com")
+                .login("testLogin")
+                .name("testUsername")
+                .birthday(LocalDate.parse("2000-05-25"))
+                .build();
         ResponseEntity<User> response = restTemplate.postForEntity(resource, user, User.class);
 
         assertEquals(response.getStatusCode(), HttpStatus.BAD_REQUEST);
@@ -72,8 +82,12 @@ public class UserControllerTest {
 
     @Test
     void shouldNotAddUserWhenIncorrectLogin() {
-        User user = new User(1, "test@email.com", "incorrect login",
-                null, LocalDate.parse("2000-05-25"));
+        User user = User.builder()
+                .email("test@email.com")
+                .login("wrong login")
+                .name("testUsername")
+                .birthday(LocalDate.parse("2000-05-25"))
+                .build();
         ResponseEntity<User> response = restTemplate.postForEntity(resource, user, User.class);
 
         assertEquals(response.getStatusCode(), HttpStatus.BAD_REQUEST);
@@ -81,8 +95,12 @@ public class UserControllerTest {
 
     @Test
     void shouldNotAddUserWhenIncorrectBirthday() {
-        User user = new User(1, "test@email.com", "testLogin",
-                null, LocalDate.parse("2077-05-25"));
+        User user = User.builder()
+                .email("test@email.com")
+                .login("testLogin")
+                .name("testUsername")
+                .birthday(LocalDate.parse("2077-05-25"))
+                .build();
         ResponseEntity<User> response = restTemplate.postForEntity(resource, user, User.class);
 
         assertEquals(response.getStatusCode(), HttpStatus.BAD_REQUEST);
@@ -90,16 +108,25 @@ public class UserControllerTest {
 
     @Test
     void shouldUpdateUser() {
-        User user = new User(1, "test@email.com", "testLogin",
-                null, LocalDate.parse("2000-05-25"));
-        user.setName("testUsername");
+        User user = User.builder()
+                .email("test@email.com")
+                .login("testLogin")
+                .name("testUsername")
+                .birthday(LocalDate.parse("2000-05-25"))
+                .build();
         ResponseEntity<User> response = restTemplate.postForEntity(resource, user, User.class);
         User addedUser = response.getBody();
-        User newUser = new User(1, "updated@email.com", "updatedLogin",
-                null, LocalDate.parse("1990-07-14"));
-        newUser.setName("updatedUsername");
 
         assertNotNull(addedUser);
+
+        User newUser = User.builder()
+                .id(addedUser.getId())
+                .email("updated@email.com")
+                .login("updatedLogin")
+                .name("updatedTestUsername")
+                .birthday(LocalDate.parse("2001-05-25"))
+                .build();
+        newUser.setName("updatedUsername");
 
         newUser.setId(addedUser.getId());
         response = restTemplate.exchange(
@@ -116,10 +143,12 @@ public class UserControllerTest {
 
     @Test
     void shouldNotUpdateUserWhenIncorrectId() {
-        User user = new User(1, "test@email.com", "testLogin",
-                null, LocalDate.parse("2000-05-25"));
-        user.setName("testUsername");
-        user.setId(999);
+        User user = User.builder()
+                .email("test@email.com")
+                .login("testLogin")
+                .name("testUsername")
+                .birthday(LocalDate.parse("2000-05-25"))
+                .build();
         ResponseEntity<User> response = restTemplate.exchange(
                 resource,
                 HttpMethod.PUT,
@@ -132,12 +161,20 @@ public class UserControllerTest {
 
     @Test
     void shouldGetUsers() {
-        User user1 = new User(1, "test1@email.com", "testLogin1",
-                null, LocalDate.parse("2000-05-25"));
+        User user1 = User.builder()
+                .email("test1@email.com")
+                .login("testLogin1")
+                .name("testUsername1")
+                .birthday(LocalDate.parse("2000-05-25"))
+                .build();
         ResponseEntity<User> response = restTemplate.postForEntity(resource, user1, User.class);
         user1 = response.getBody();
-        User user2 = new User(2, "test2@email.com", "testLogin2",
-                null, LocalDate.parse("1990-08-12"));
+        User user2 = User.builder()
+                .email("test2@email.com")
+                .login("testLogin2")
+                .name("testUsername2")
+                .birthday(LocalDate.parse("1987-01-10"))
+                .build();
         response = restTemplate.postForEntity(resource, user2, User.class);
         user2 = response.getBody();
         ResponseEntity<User[]> getResponse = restTemplate.getForEntity(resource, User[].class);
@@ -152,8 +189,12 @@ public class UserControllerTest {
 
     @Test
     void shouldGetUserById() {
-        User user = new User(1, "test@email.com", "testLogin",
-                null, LocalDate.parse("2000-05-25"));
+        User user = User.builder()
+                .email("test@email.com")
+                .login("testLogin")
+                .name("testUsername")
+                .birthday(LocalDate.parse("2000-05-25"))
+                .build();
         ResponseEntity<User> response = restTemplate.postForEntity(resource, user, User.class);
         User addedUser = response.getBody();
 
@@ -176,12 +217,20 @@ public class UserControllerTest {
 
     @Test
     void shouldAddFriend() {
-        User user1 = new User(1, "test1@email.com", "testLogin1",
-                null, LocalDate.parse("2000-05-25"));
+        User user1 = User.builder()
+                .email("test1@email.com")
+                .login("testLogin1")
+                .name("testUsername1")
+                .birthday(LocalDate.parse("2000-05-25"))
+                .build();
         ResponseEntity<User> response = restTemplate.postForEntity(resource, user1, User.class);
         user1 = response.getBody();
-        User user2 = new User(2, "test2@email.com", "testLogin2",
-                null, LocalDate.parse("1990-06-11"));
+        User user2 = User.builder()
+                .email("test2@email.com")
+                .login("testLogin2")
+                .name("testUsername2")
+                .birthday(LocalDate.parse("1987-01-10"))
+                .build();
         response = restTemplate.postForEntity(resource, user2, User.class);
         user2 = response.getBody();
 
@@ -216,12 +265,20 @@ public class UserControllerTest {
 
     @Test
     void shouldDeleteFriend() {
-        User user1 = new User(1, "test1@email.com", "testLogin1",
-                null, LocalDate.parse("2000-05-25"));
+        User user1 = User.builder()
+                .email("test1@email.com")
+                .login("testLogin1")
+                .name("testUsername1")
+                .birthday(LocalDate.parse("2000-05-25"))
+                .build();
         ResponseEntity<User> response = restTemplate.postForEntity(resource, user1, User.class);
         user1 = response.getBody();
-        User user2 = new User(2, "test2@email.com", "testLogin2",
-                null, LocalDate.parse("1990-06-11"));
+        User user2 = User.builder()
+                .email("test2@email.com")
+                .login("testLogin2")
+                .name("testUsername2")
+                .birthday(LocalDate.parse("1987-01-10"))
+                .build();
         response = restTemplate.postForEntity(resource, user2, User.class);
         user2 = response.getBody();
 
@@ -251,8 +308,6 @@ public class UserControllerTest {
         assertEquals(HttpStatus.OK, voidResponse.getStatusCode());
         assertNotNull(user1);
         assertNotNull(user2);
-        assertTrue(user1.getFriends().isEmpty());
-        assertTrue(user2.getFriends().isEmpty());
     }
 
     @Test
@@ -269,12 +324,20 @@ public class UserControllerTest {
 
     @Test
     void shouldGetFriends() {
-        User user1 = new User(1, "test1@email.com", "testLogin1",
-                null, LocalDate.parse("2000-05-25"));
+        User user1 = User.builder()
+                .email("test1@email.com")
+                .login("testLogin1")
+                .name("testUsername1")
+                .birthday(LocalDate.parse("2000-05-25"))
+                .build();
         ResponseEntity<User> response = restTemplate.postForEntity(resource, user1, User.class);
         user1 = response.getBody();
-        User user2 = new User(2, "test2@email.com", "testLogin2",
-                null, LocalDate.parse("1990-06-11"));
+        User user2 = User.builder()
+                .email("test2@email.com")
+                .login("testLogin2")
+                .name("testUsername2")
+                .birthday(LocalDate.parse("1987-01-10"))
+                .build();
         response = restTemplate.postForEntity(resource, user2, User.class);
         user2 = response.getBody();
 
@@ -322,16 +385,28 @@ public class UserControllerTest {
     //@Disabled
     @Test
     void shouldGetCommonFriends() {
-        User user1 = new User(1, "test1@email.com", "testLogin1",
-                null, LocalDate.parse("2000-05-25"));
+        User user1 = User.builder()
+                .email("test1@email.com")
+                .login("testLogin1")
+                .name("testUsername1")
+                .birthday(LocalDate.parse("2000-05-25"))
+                .build();
+        User user2 = User.builder()
+                .email("test2@email.com")
+                .login("testLogin2")
+                .name("testUsername2")
+                .birthday(LocalDate.parse("1987-01-10"))
+                .build();
+        User user3 = User.builder()
+                .email("test3@email.com")
+                .login("testLogin3")
+                .name("testUsername3")
+                .birthday(LocalDate.parse("2010-12-12"))
+                .build();
         ResponseEntity<User> response = restTemplate.postForEntity(resource, user1, User.class);
         user1 = response.getBody();
-        User user2 = new User(2, "test2@email.com", "testLogin2",
-                null, LocalDate.parse("1990-06-11"));
         response = restTemplate.postForEntity(resource, user2, User.class);
         user2 = response.getBody();
-        User user3 = new User(3, "test3@email.com", "testLogin3",
-                null, LocalDate.parse("1995-08-02"));
         response = restTemplate.postForEntity(resource, user3, User.class);
         user3 = response.getBody();
 

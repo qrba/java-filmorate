@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Builder;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.annotations.IsAfter;
 
@@ -10,40 +10,26 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Data
+@Builder
 public class Film {
     private int id;
-    @NotBlank
-    private final String name;
+    @NotBlank(message = "Название фильма не может быть пустым")
+    private String name;
     @NotNull
-    @Size(max = 200)
-    private final String description;
+    @Size(max = 200, message = "Максимальная длина описания — 200 символов")
+    private String description;
     @NotNull
-    @IsAfter(current = "1895-12-28")
-    private final LocalDate releaseDate;
-    @Positive
-    private final int duration;
+    @IsAfter(current = "1895-12-28", message = "Дата релиза не может быть раньше 28 декабря 1895 года")
+    private LocalDate releaseDate;
+    @Positive(message = "Продолжительность фильма должна быть положительной")
+    private int duration;
     @Valid
-    private final RatingMPA mpa;
+    private RatingMPA mpa;
     @Valid
-    private List<Genre> genres = new ArrayList<>();
-    @JsonIgnore
-    private Set<Integer> likes = new HashSet<>();
-
-    public void addLike(int id) {
-        likes.add(id);
-    }
-
-    public void deleteLike(int id) {
-        likes.remove(id);
-    }
-
-    public int getLikesNumber() {
-        return likes.size();
-    }
+    private List<Genre> genres;
+    @Valid
+    private List<Director> directors;
 }

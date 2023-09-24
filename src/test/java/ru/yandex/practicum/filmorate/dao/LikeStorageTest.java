@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.dao;
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
@@ -26,18 +25,29 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class LikeStorageTest {
     private final LikeStorage storage;
+    private final UserStorage userStorage;
+    private final FilmStorage filmStorage;
 
     @Test
-    void shouldAddDeleteGetLikes(@Qualifier("databaseUser") UserStorage userStorage,
-            @Qualifier("databaseFilm") FilmStorage filmStorage) {
-        Film film = new Film("Film", "Film is a test entity",
-                LocalDate.parse("1985-10-20"), 90, new RatingMPA(1, "G"));
-        filmStorage.add(film);
-        User user = new User(1, "test@email.com", "testLogin",
-                "testName", LocalDate.parse("2000-05-25"));
+    void shouldAddDeleteGetLikes() {
+        Film film = Film.builder()
+                .name("Film")
+                .description("Film is a test entity")
+                .releaseDate(LocalDate.parse("1985-10-20"))
+                .duration(90)
+                .mpa(new RatingMPA(1, "G"))
+                .build();
+        Film addedFilm = filmStorage.add(film);
+        User user = User.builder()
+                .id(1)
+                .email("test@email.com")
+                .login("testLogin")
+                .name("testName")
+                .birthday(LocalDate.parse("2000-05-25"))
+                .build();
         userStorage.add(user);
-        storage.addLike(film.getId(), user.getId());
-        List<Integer> likes = storage.getLikes(film.getId());
+        storage.addLike(addedFilm.getId(), user.getId());
+        List<Integer> likes = storage.getLikes(addedFilm.getId());
 
         assertEquals(List.of(user.getId()), likes);
 
